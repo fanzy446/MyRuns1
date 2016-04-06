@@ -1,2 +1,2 @@
 # MyRuns1
-Course project for CS165
+Course for CS165
