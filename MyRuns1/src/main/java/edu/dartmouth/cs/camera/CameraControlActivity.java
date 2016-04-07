@@ -24,8 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.soundcloud.android.crop.Crop;
-
 public class CameraControlActivity extends Activity {
 
 	public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
