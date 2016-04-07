@@ -11,6 +11,7 @@ public class SettingsFragment extends Fragment {
 
     public SettingsFragment() {
         // Required empty public constructor
+        int a = 1;
     }
 
     public static SettingsFragment newInstance() {
@@ -51,11 +52,13 @@ public class SettingsFragment extends Fragment {
                     break;
 
                 case R.id.llSettingsComment:
+                    EditDialogFragment fragment = EditDialogFragment.newInstance("Comments", null);
+                    fragment.show(getFragmentManager(), "setting_comments");
                     break;
-
                 case R.id.llSettingsPage:
                     break;
             }
         }
     }
+    
 }
