@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,6 +106,8 @@ public class SettingsFragment extends Fragment {
                     break;
 
                 case R.id.llSettingsPage:
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.ui_settings_page_summary)));
+                    startActivity(browserIntent);
                     break;
             }
         }
