@@ -1,8 +1,29 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light">
-        <!-- Customize your theme here. -->
+    <style name="SettingParentTitleFont">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textColor">@android:color/holo_green_light</item>
+    </style>
+
+    <style name="SettingChildTitleFont" parent="@style/SettingParentTitleFont">
+        <item name="android:textSize">20dp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="SettingSummaryFont" parent="@style/SettingParentTitleFont">
+        <item name="android:textColor">@android:color/darker_gray</item>
+    </style>
+
+    <style name="SettingChildLinearLayout">
+        <item name="android:padding">5dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:clickable">true</item>
+
     </style>
 
 </resources>
