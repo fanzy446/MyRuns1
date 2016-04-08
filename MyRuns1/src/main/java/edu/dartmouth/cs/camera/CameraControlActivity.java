@@ -1,9 +1,12 @@
 package edu.dartmouth.cs.camera;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -15,7 +18,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ import java.io.IOException;
 public class CameraControlActivity extends Activity {
 
 	public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
+	public static final int REQUEST_CODE_TAKE_FROM_GALLERY = 1;
 	public static final int REQUEST_CODE_CROP_PHOTO = 2;
 
 	private static final String IMAGE_UNSPECIFIED = "image/*";
@@ -34,12 +37,12 @@ public class CameraControlActivity extends Activity {
 
 	private Uri mImageCaptureUri;
 	private ImageView mImageView;
-	private EditText nameText;
-	private EditText emailText;
-	private EditText phoneText;
-	private RadioGroup genderRadio;
-	private EditText classText;
-	private EditText majorText;
+	private EditText mNameText;
+	private EditText mEmailText;
+	private EditText mPhoneText;
+	private RadioGroup mGenderRadio;
+	private EditText mClassText;
+	private EditText mMajorText;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +50,14 @@ public class CameraControlActivity extends Activity {
 		setContentView(R.layout.profile);
 
 		mImageView = (ImageView) findViewById(R.id.imageProfile);
-		nameText = (EditText) findViewById(R.id.nameProfile);
-		emailText = (EditText) findViewById(R.id.emailProfile);
-		phoneText = (EditText) findViewById(R.id.phoneProfile);
-		genderRadio = (RadioGroup) findViewById(R.id.genderProfile);
-		classText = (EditText) findViewById(R.id.classProfile);
-		majorText = (EditText) findViewById(R.id.majorProfile);
+		mNameText = (EditText) findViewById(R.id.nameProfile);
+		mEmailText = (EditText) findViewById(R.id.emailProfile);
+		mPhoneText = (EditText) findViewById(R.id.phoneProfile);
+		mGenderRadio = (RadioGroup) findViewById(R.id.genderProfile);
+		mClassText = (EditText) findViewById(R.id.classProfile);
+		mMajorText = (EditText) findViewById(R.id.majorProfile);
+
+		mImageCaptureUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), getString(R.string.profile_photo_file_name_temp)));
 
 		loadInfo();
 		loadSnap();
@@ -77,18 +82,7 @@ public class CameraControlActivity extends Activity {
 	}
 
 	public void onChangePhotoClicked(View v) {
-		Intent intent;
-
-		intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		mImageCaptureUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "tmp_"
-				+ String.valueOf(System.currentTimeMillis()) + ".jpg"));
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-		intent.putExtra("return-data", true);
-		try {
-			startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
-		} catch (ActivityNotFoundException e) {
-			e.printStackTrace();
-		}
+		showPictureDialog();
 	}
 
 	@Override
@@ -100,6 +94,30 @@ public class CameraControlActivity extends Activity {
 
 		switch (requestCode) {
 			case REQUEST_CODE_TAKE_FROM_CAMERA:
+				cropImage();
+				break;
+
+			case REQUEST_CODE_TAKE_FROM_GALLERY:
+				Uri picUri = data.getData();
+				String[] filePathColumn = {MediaStore.Images.Media.DATA};
+				Cursor cursor = getContentResolver().query(picUri,
+						filePathColumn, null, null, null);
+				cursor.moveToFirst();
+				int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+				String path = cursor.getString(columnIndex);
+				cursor.close();
+				try {
+					FileInputStream fis = new FileInputStream(new File(path));
+					FileOutputStream fos = new FileOutputStream(new File(mImageCaptureUri.getPath()));
+					byte[] buffer = new byte[256];
+					while (fis.read(buffer) != -1) {
+						fos.write(buffer);
+					}
+					fis.close();
+					fos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				cropImage();
 				break;
 
@@ -119,9 +137,9 @@ public class CameraControlActivity extends Activity {
 	private void deleteTmp() {
 		if (mImageCaptureUri != null) {
 			File f = new File(mImageCaptureUri.getPath());
-			if (f.exists())
+			if (f.exists()) {
 				f.delete();
-			mImageCaptureUri = null;
+			}
 		}
 	}
 
@@ -132,31 +150,27 @@ public class CameraControlActivity extends Activity {
 
 		mKey = getString(R.string.preference_key_profile_name);
 		String mName = mPrefs.getString(mKey, "");
-		((EditText) findViewById(R.id.nameProfile)).setText(mName);
+		mNameText.setText(mName);
 
 		mKey = getString(R.string.preference_key_profile_email);
 		String mEmail = mPrefs.getString(mKey, "");
-		((EditText) findViewById(R.id.emailProfile)).setText(mEmail);
+		mEmailText.setText(mEmail);
 
 		mKey = getString(R.string.preference_key_profile_number);
 		String mNumber = mPrefs.getString(mKey, "");
-		((EditText) findViewById(R.id.phoneProfile)).setText(mNumber);
+		mPhoneText.setText(mNumber);
 
 		mKey = getString(R.string.preference_key_profile_class);
 		String mClass = mPrefs.getString(mKey, "");
-		((EditText) findViewById(R.id.classProfile)).setText(mClass);
+		mClassText.setText(mClass);
 
 		mKey = getString(R.string.preference_key_profile_major);
 		String mMajor = mPrefs.getString(mKey, "");
-		((EditText) findViewById(R.id.majorProfile)).setText(mMajor);
+		mMajorText.setText(mMajor);
 
 		mKey = getString(R.string.preference_key_profile_gender);
-
 		int mIntValue = mPrefs.getInt(mKey, -1);
-		if (mIntValue >= 0) {
-			RadioButton radioBtn = (RadioButton) ((RadioGroup) findViewById(R.id.genderProfile)).getChildAt(mIntValue);
-			radioBtn.setChecked(true);
-		}
+		mGenderRadio.check(mIntValue);
 	}
 
 	private void saveInfo() {
@@ -167,30 +181,27 @@ public class CameraControlActivity extends Activity {
 		mEditor.clear();
 
 		mKey = getString(R.string.preference_key_profile_name);
-		String mName = ((EditText) findViewById(R.id.nameProfile)).getText().toString();
+		String mName = mNameText.getText().toString();
 		mEditor.putString(mKey, mName);
 
 		mKey = getString(R.string.preference_key_profile_email);
-		String mEmail = ((EditText) findViewById(R.id.emailProfile)).getText().toString();
+		String mEmail = mEmailText.getText().toString();
 		mEditor.putString(mKey, mEmail);
 
 		mKey = getString(R.string.preference_key_profile_number);
-		String mNumber = ((EditText) findViewById(R.id.phoneProfile)).getText().toString();
+		String mNumber = mPhoneText.getText().toString();
 		mEditor.putString(mKey, mNumber);
 
 		mKey = getString(R.string.preference_key_profile_class);
-		String mClass = ((EditText) findViewById(R.id.classProfile)).getText().toString();
+		String mClass = mClassText.getText().toString();
 		mEditor.putString(mKey, mClass);
 
 		mKey = getString(R.string.preference_key_profile_major);
-		String mMajor = ((EditText) findViewById(R.id.majorProfile)).getText().toString();
+		String mMajor = mMajorText.getText().toString();
 		mEditor.putString(mKey, mMajor);
 
 		mKey = getString(R.string.preference_key_profile_gender);
-
-		RadioGroup mRadioGroup = (RadioGroup) findViewById(R.id.genderProfile);
-		int mIntValue = mRadioGroup.indexOfChild(findViewById(mRadioGroup.getCheckedRadioButtonId()));
-		mEditor.putInt(mKey, mIntValue);
+		mEditor.putInt(mKey, mGenderRadio.getCheckedRadioButtonId());
 
 		mEditor.commit();
 	}
@@ -234,6 +245,39 @@ public class CameraControlActivity extends Activity {
 		intent.putExtra("return-data", true);
 
 		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
+	}
+
+	private void showPictureDialog() {
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+		alertDialog.setTitle(R.string.ui_profile_photo_picker_title);
+		alertDialog.setItems(R.array.ui_settings_profile_picture, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i) {
+				Intent intent;
+				switch (i) {
+					case REQUEST_CODE_TAKE_FROM_CAMERA:
+						intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+						intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
+						try {
+							startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
+						} catch (ActivityNotFoundException e) {
+							e.printStackTrace();
+						}
+						break;
+
+					case REQUEST_CODE_TAKE_FROM_GALLERY:
+						intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+						try {
+							startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_GALLERY);
+						} catch (ActivityNotFoundException e) {
+							e.printStackTrace();
+						}
+						break;
+				}
+
+			}
+		});
+		alertDialog.create().show();
 	}
 
 }

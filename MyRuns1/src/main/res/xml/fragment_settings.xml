@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/ui_settings_preferences_title">
+
+        <Preference
+            android:summary="@string/ui_settings_profile_summary"
+            android:title="@string/ui_settings_profile_title">
+            <intent
+                android:targetClass="edu.dartmouth.cs.camera.CameraControlActivity"
+                android:targetPackage="edu.dartmouth.cs.camera" />
+
+        </Preference>
+
+        <CheckBoxPreference
+            android:key="checkbox_preference"
+            android:summary="@string/ui_settings_privacy_summary"
+            android:title="@string/ui_settings_privacy_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/ui_settings_additional_title">
+
+        <ListPreference
+            android:dialogTitle="@string/ui_settings_unit_title"
+            android:entries="@array/ui_settings_unit_items"
+            android:entryValues="@array/ui_settings_unit_items_values"
+            android:key="list_preference"
+            android:summary="@string/ui_settings_unit_title"
+            android:title="@string/ui_settings_unit_title" />
+
+        <EditTextPreference
+            android:dialogTitle="@string/ui_settings_comment_title"
+            android:key="edittext_preference"
+            android:summary="@string/ui_settings_comment_summary"
+            android:title="@string/ui_settings_comment_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/ui_settings_misc_title">
+
+        <PreferenceScreen
+            android:summary="@string/ui_settings_page_summary"
+            android:title="@string/ui_settings_page_title">
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/ui_settings_page_summary" />
+
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

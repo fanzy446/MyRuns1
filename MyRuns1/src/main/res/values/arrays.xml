@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ui_settings_profile_picture">
+        <item>Open Camera</item>
+        <item>Select from Gallery</item>
+    </string-array>
+
+    <string-array name="ui_settings_unit_items">
+        <item>Metric (Kilometers)</item>
+        <item>Imperial (Miles)</item>
+    </string-array>
+
+    <string-array name="ui_settings_unit_items_values">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </string-array>
+</resources>
