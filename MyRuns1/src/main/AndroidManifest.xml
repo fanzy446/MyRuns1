@@ -22,6 +22,9 @@
         <activity
             android:name=".CameraControlActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".infoActivity"></activity>
+        <activity android:name=".gpsActivity"
+            android:label="Map"></activity>
     </application>
 
 </manifest>

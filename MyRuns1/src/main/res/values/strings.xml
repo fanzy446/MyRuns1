@@ -14,7 +14,7 @@
     <string name="ui_settings_additional_title">Additional Settings</string>
     <string name="ui_settings_unit_title">Unit Preference</string>
     <string name="ui_settings_unit_summary">Select the units</string>
-    <string name="preference_key_settings_unit">settings_unit</string>
+
     <string name="ui_settings_comment_title">Comments</string>
     <string name="ui_settings_comment_summary">Please enter your comments</string>
     <string name="preference_key_settings_comments">settings_comments</string>
@@ -22,6 +22,37 @@
     <string name="ui_settings_misc_title">Misc.</string>
     <string name="ui_settings_page_title">Webpage</string>
     <string name="ui_settings_page_summary">http://web.cs.dartmouth.edu/</string>
+
+    <!-- Start Fragment -->
+    <string-array name="spinner_input_type">
+        <item>Manual Entry</item>
+        <item>GPS</item>
+        <item>Automatic</item>
+    </string-array>
+
+    <string-array name="spinner_activity_type">
+        <item>Running</item>
+        <item>Walking</item>
+        <item>Standing</item>
+        <item>Cycling</item>
+        <item>Hiking</item>
+        <item>Downhill Skiing</item>
+        <item>Cross-Country Skiing</item>
+        <item>Snowboarding</item>
+        <item>Skating</item>
+        <item>Swimming</item>
+        <item>Mountain Biking</item>
+        <item>Wheelchair</item>
+        <item>Elliptical</item>
+        <item>Other</item>
+    </string-array>
+
+    <string name="ui_listview_duration_title">Duration</string>
+    <string name="ui_listview_distance_title">Distance</string>
+    <string name="ui_listview_calory_title">Calories</string>
+    <string name="ui_listview_heartrate_title">Heart Rate</string>
+    <string name="ui_listview_comment_title">Comment</string>
+    <string name="ui_listview_comment_summary">How did it go? Notes here.</string>
 
     <!-- Profile -->
     <string name="profile_photo_file_name_temp">tmp.png</string>
