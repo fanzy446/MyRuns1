@@ -3,9 +3,13 @@ package edu.dartmouth.cs.camera;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 
@@ -28,7 +32,10 @@ public class MainActivity extends Activity {
 
         if (mFragments == null) {
             mFragments = new ArrayList<>();
+            mFragments.add(StartFragment.newInstance());
+            mFragments.add(HistoryFragment.newInstance());
             mFragments.add(SettingsFragment.newInstance());
+
         }
 
         mViewPagerAdapter = new ViewPagerAdapter(getFragmentManager(), mFragments);
@@ -76,5 +83,31 @@ public class MainActivity extends Activity {
             }
             return null;
         }
+    }
+
+    public void onStartClicked(View v) {
+
+        Spinner mSpinner = (Spinner) findViewById(R.id.input_type);
+        String mItemSelected = mSpinner.getSelectedItem().toString();
+        Intent mIntent;
+
+        switch(mItemSelected) {
+            case "Manual Entry":
+                mIntent = new Intent(MainActivity.this, infoActivity.class);
+                startActivity(mIntent);
+                break;
+            case "GPS":
+                mIntent = new Intent(MainActivity.this, gpsActivity.class);
+                startActivity(mIntent);
+                break;
+            case "Automatic":
+                mIntent = new Intent(MainActivity.this, gpsActivity.class);
+                startActivity(mIntent);
+                break;
+        }
+    }
+
+    public void onCancelClicked(View v) {
+
     }
 }
