@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
 
         switch (mItemSelected) {
             case "Manual Entry":
-                mIntent = new Intent(MainActivity.this, infoActivity.class);
+                mIntent = new Intent(MainActivity.this, ListviewActivity.class);
                 startActivity(mIntent);
                 break;
             case "GPS":
