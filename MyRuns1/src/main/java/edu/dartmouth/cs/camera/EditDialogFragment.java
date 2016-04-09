@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+/**
+ * The custom dialog fragment with an EditText view
+ */
 public class EditDialogFragment extends DialogFragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_TITLE = "title";
@@ -34,6 +37,7 @@ public class EditDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            //Initialize the arguments
             mTitle = getArguments().getString(ARG_TITLE);
             mHint = getArguments().getString(ARG_HINT);
         }

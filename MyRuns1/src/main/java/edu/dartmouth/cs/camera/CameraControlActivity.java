@@ -98,6 +98,7 @@ public class CameraControlActivity extends Activity {
 				break;
 
 			case REQUEST_CODE_TAKE_FROM_GALLERY:
+				//get the path of chosen picture
 				Uri picUri = data.getData();
 				String[] filePathColumn = {MediaStore.Images.Media.DATA};
 				Cursor cursor = getContentResolver().query(picUri,
@@ -106,6 +107,8 @@ public class CameraControlActivity extends Activity {
 				int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
 				String path = cursor.getString(columnIndex);
 				cursor.close();
+
+				//copy the picture to mImageCaptureUri
 				try {
 					FileInputStream fis = new FileInputStream(new File(path));
 					FileOutputStream fos = new FileOutputStream(new File(mImageCaptureUri.getPath()));
@@ -118,6 +121,7 @@ public class CameraControlActivity extends Activity {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+
 				cropImage();
 				break;
 
@@ -133,7 +137,11 @@ public class CameraControlActivity extends Activity {
 		}
 	}
 
-	//private method
+	//************private method************
+
+	/**
+	 * delete the temporary image
+	 */
 	private void deleteTmp() {
 		if (mImageCaptureUri != null) {
 			File f = new File(mImageCaptureUri.getPath());
@@ -143,6 +151,9 @@ public class CameraControlActivity extends Activity {
 		}
 	}
 
+	/**
+	 * load the profile info (eg. name, email..)
+	 */
 	private void loadInfo() {
 
 		String mKey = getString(R.string.preference_name);
@@ -173,6 +184,9 @@ public class CameraControlActivity extends Activity {
 		mGenderRadio.check(mIntValue);
 	}
 
+	/**
+	 * save the profile info (eg. name, email..)
+	 */
 	private void saveInfo() {
 		String mKey = getString(R.string.preference_name);
 		SharedPreferences mPrefs = getSharedPreferences(mKey, MODE_PRIVATE);
@@ -206,6 +220,9 @@ public class CameraControlActivity extends Activity {
 		mEditor.commit();
 	}
 
+	/**
+	 * load the profile image to mImageView
+	 */
 	private void loadSnap() {
 		try {
 			FileInputStream fis = openFileInput(getString(R.string.profile_photo_file_name));
@@ -218,6 +235,9 @@ public class CameraControlActivity extends Activity {
 		}
 	}
 
+	/**
+	 * save mImageView
+	 */
 	private void saveSnap() {
 		try {
 			mImageView.buildDrawingCache();
@@ -232,6 +252,9 @@ public class CameraControlActivity extends Activity {
 		}
 	}
 
+	/**
+	 * crop the temporary image
+	 */
 	private void cropImage() {
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(mImageCaptureUri, IMAGE_UNSPECIFIED);
@@ -247,6 +270,9 @@ public class CameraControlActivity extends Activity {
 		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
 	}
 
+	/**
+	 * show the dialog choosing the source of image
+	 */
 	private void showPictureDialog() {
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog.setTitle(R.string.ui_profile_photo_picker_title);

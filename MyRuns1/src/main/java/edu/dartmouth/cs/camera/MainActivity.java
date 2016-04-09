@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -43,6 +42,28 @@ public class MainActivity extends Activity {
 
         mSlidingTabLayout.setDistributeEvenly(true);
         mSlidingTabLayout.setViewPager(mViewPager);
+    }
+
+    public void onStartClicked(View v) {
+
+        Spinner mSpinner = (Spinner) findViewById(R.id.input_type);
+        String mItemSelected = mSpinner.getSelectedItem().toString();
+        Intent mIntent;
+
+        switch (mItemSelected) {
+            case "Manual Entry":
+                mIntent = new Intent(MainActivity.this, infoActivity.class);
+                startActivity(mIntent);
+                break;
+            case "GPS":
+                mIntent = new Intent(MainActivity.this, gpsActivity.class);
+                startActivity(mIntent);
+                break;
+            case "Automatic":
+                mIntent = new Intent(MainActivity.this, gpsActivity.class);
+                startActivity(mIntent);
+                break;
+        }
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -83,31 +104,5 @@ public class MainActivity extends Activity {
             }
             return null;
         }
-    }
-
-    public void onStartClicked(View v) {
-
-        Spinner mSpinner = (Spinner) findViewById(R.id.input_type);
-        String mItemSelected = mSpinner.getSelectedItem().toString();
-        Intent mIntent;
-
-        switch(mItemSelected) {
-            case "Manual Entry":
-                mIntent = new Intent(MainActivity.this, infoActivity.class);
-                startActivity(mIntent);
-                break;
-            case "GPS":
-                mIntent = new Intent(MainActivity.this, gpsActivity.class);
-                startActivity(mIntent);
-                break;
-            case "Automatic":
-                mIntent = new Intent(MainActivity.this, gpsActivity.class);
-                startActivity(mIntent);
-                break;
-        }
-    }
-
-    public void onCancelClicked(View v) {
-
     }
 }
