@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class MainActivity extends Activity {
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 
+    // the function of the START button in StartFragment
     public void onStartClicked(View v) {
 
         Spinner mSpinner = (Spinner) findViewById(R.id.input_type);
@@ -65,6 +67,13 @@ public class MainActivity extends Activity {
                 break;
         }
     }
+
+
+    // the function of the SYNC button, do nothing
+    public void onSyncClicked(View v) {
+
+    }
+
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         public static final int START = 0;
@@ -106,3 +115,4 @@ public class MainActivity extends Activity {
         }
     }
 }
+
