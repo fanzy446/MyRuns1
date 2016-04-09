@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -58,11 +57,11 @@ public class MainActivity extends Activity {
                 startActivity(mIntent);
                 break;
             case "GPS":
-                mIntent = new Intent(MainActivity.this, gpsActivity.class);
+                mIntent = new Intent(MainActivity.this, GpsActivity.class);
                 startActivity(mIntent);
                 break;
             case "Automatic":
-                mIntent = new Intent(MainActivity.this, gpsActivity.class);
+                mIntent = new Intent(MainActivity.this, GpsActivity.class);
                 startActivity(mIntent);
                 break;
         }
