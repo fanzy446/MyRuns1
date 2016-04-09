@@ -46,6 +46,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="SYNC"
-            android:onClick="onCancelClicked"/>
+            android:onClick="onSyncClicked"/>
     </LinearLayout>
 </LinearLayout>

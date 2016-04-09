@@ -7,7 +7,7 @@ import android.view.View;
 /**
  * Created by oubai on 4/8/16.
  */
-public class gpsActivity extends Activity {
+public class GpsActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,6 +15,7 @@ public class gpsActivity extends Activity {
         setContentView(R.layout.activity_map);
     }
 
+    // the function of SAVE and CANCEL button in GPS and AUTOMATIC choices
     public void onButtonClicked(View v) {
         finish();
     }
