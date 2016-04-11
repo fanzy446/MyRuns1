@@ -15,8 +15,8 @@ public class GpsActivity extends Activity {
         setContentView(R.layout.activity_map);
     }
 
-    // the function of SAVE and CANCEL button in GPS and AUTOMATIC choices
-    public void onButtonClicked(View v) {
+    // the function of SAVE and CANCEL button in GPS and AUTOMATIC
+    public void onGPSButtonClicked(View v) {
         finish();
     }
 }

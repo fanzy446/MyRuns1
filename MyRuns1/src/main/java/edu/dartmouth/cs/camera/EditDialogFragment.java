@@ -15,20 +15,23 @@ public class EditDialogFragment extends DialogFragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_TITLE = "title";
     private static final String ARG_HINT = "hint";
+    private static final int ARG_INPUTTYPE = 0;
 
     private String mTitle;
     private String mHint;
+    private int mInputType;
 
 
     public EditDialogFragment() {
         // Required empty public constructor
     }
 
-    public static EditDialogFragment newInstance(String title, String hint) {
+    public static EditDialogFragment newInstance(String title, String hint, int inputtype) {
         EditDialogFragment fragment = new EditDialogFragment();
         Bundle args = new Bundle();
         args.putString(ARG_TITLE, title);
         args.putString(ARG_HINT, hint);
+        args.putInt(String.valueOf(ARG_INPUTTYPE), inputtype);
         fragment.setArguments(args);
         return fragment;
     }
@@ -40,6 +43,7 @@ public class EditDialogFragment extends DialogFragment {
             //Initialize the arguments
             mTitle = getArguments().getString(ARG_TITLE);
             mHint = getArguments().getString(ARG_HINT);
+            mInputType = getArguments().getInt(String.valueOf(ARG_INPUTTYPE));
         }
     }
 
@@ -50,6 +54,7 @@ public class EditDialogFragment extends DialogFragment {
 
         final EditText input = new EditText(getActivity());
         input.setHint(mHint);
+        input.setInputType(mInputType);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
