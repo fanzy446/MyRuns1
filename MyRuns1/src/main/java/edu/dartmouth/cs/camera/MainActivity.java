@@ -9,6 +9,7 @@ import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -70,7 +71,6 @@ public class MainActivity extends Activity {
 
     // the function of the SYNC button, do nothing
     public void onSyncClicked(View v) {
-
     }
 
 

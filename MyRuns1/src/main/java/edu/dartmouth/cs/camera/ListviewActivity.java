@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -45,23 +46,23 @@ public class ListviewActivity extends Activity {
                         onTimeClicked(view);
                         break;
                     case 2:
-                        EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title), null);
+                        EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title), null, 2);
                         edFragment1.show(getFragmentManager(), getString(R.string.ui_listview_duration_title));
                         break;
                     case 3:
-                        EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title), null);
+                        EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title), null, 2);
                         edFragment2.show(getFragmentManager(), getString(R.string.ui_listview_distance_title));
                         break;
                     case 4:
-                        EditDialogFragment edFragment3 = EditDialogFragment.newInstance(getString(R.string.ui_listview_calory_title), null);
+                        EditDialogFragment edFragment3 = EditDialogFragment.newInstance(getString(R.string.ui_listview_calory_title), null, 2);
                         edFragment3.show(getFragmentManager(), getString(R.string.ui_listview_calory_title));
                         break;
                     case 5:
-                        EditDialogFragment edFragment4 = EditDialogFragment.newInstance(getString(R.string.ui_listview_heartrate_title), null);
+                        EditDialogFragment edFragment4 = EditDialogFragment.newInstance(getString(R.string.ui_listview_heartrate_title), null, 2);
                         edFragment4.show(getFragmentManager(), getString(R.string.ui_listview_heartrate_title));
                         break;
                     case 6:
-                        EditDialogFragment edFragment5 = EditDialogFragment.newInstance(getString(R.string.ui_listview_comment_title), getString(R.string.ui_listview_comment_summary));
+                        EditDialogFragment edFragment5 = EditDialogFragment.newInstance(getString(R.string.ui_listview_comment_title), getString(R.string.ui_listview_comment_summary), 1);
                         edFragment5.show(getFragmentManager(), getString(R.string.ui_listview_comment_title));
                         break;
                 }
@@ -105,7 +106,13 @@ public class ListviewActivity extends Activity {
     }
 
     // the function of the SAVE and CANCEL button
-    public void onItemButtonClicked(View v) {
+    public void onListviewSaveClicked(View v) {
         finish();
     }
+
+    public void onListviewCancelClicked(View v) {
+        Toast.makeText(ListviewActivity.this, "Entry discarded.", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
 }

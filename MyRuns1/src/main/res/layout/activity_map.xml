@@ -13,13 +13,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="SAVE"
-            android:onClick="onButtonClicked"/>
+            android:onClick="onGPSButtonClicked"/>
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="CANCEL"
-            android:onClick="onButtonClicked"/>
+            android:onClick="onGPSButtonClicked"/>
     </LinearLayout>
 
 </RelativeLayout>
