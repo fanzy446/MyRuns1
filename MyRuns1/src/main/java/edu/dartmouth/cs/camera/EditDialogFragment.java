@@ -55,6 +55,9 @@ public class EditDialogFragment extends DialogFragment {
         final EditText input = new EditText(getActivity());
         input.setHint(mHint);
         input.setInputType(mInputType);
+        if(mTitle.equals("Comment")) {
+            input.setHeight(400);
+        }
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);

@@ -45,33 +45,8 @@ public class MainActivity extends Activity {
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 
-    // the function of the START button in StartFragment
-    public void onStartClicked(View v) {
-
-        Spinner mSpinner = (Spinner) findViewById(R.id.input_type);
-        String mItemSelected = mSpinner.getSelectedItem().toString();
-        Intent mIntent;
-
-        switch (mItemSelected) {
-            case "Manual Entry":
-                mIntent = new Intent(MainActivity.this, ListviewActivity.class);
-                startActivity(mIntent);
-                break;
-            case "GPS":
-                mIntent = new Intent(MainActivity.this, GpsActivity.class);
-                startActivity(mIntent);
-                break;
-            case "Automatic":
-                mIntent = new Intent(MainActivity.this, GpsActivity.class);
-                startActivity(mIntent);
-                break;
-        }
-    }
 
 
-    // the function of the SYNC button, do nothing
-    public void onSyncClicked(View v) {
-    }
 
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

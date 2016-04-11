@@ -38,6 +38,7 @@
             android:orientation="vertical"
             android:layout_marginTop="60dp">
             <Button
+                android:id="@+id/start_start_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
@@ -45,6 +46,7 @@
                 android:onClick="onStartClicked"/>
 
             <Button
+                android:id="@+id/start_sync_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
