@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.camera;
+package edu.dartmouth.cs.camera.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
