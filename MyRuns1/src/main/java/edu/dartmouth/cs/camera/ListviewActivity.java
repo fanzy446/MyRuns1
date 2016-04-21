@@ -1,9 +1,7 @@
 package edu.dartmouth.cs.camera;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.view.View;
@@ -17,12 +15,13 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
-/**
- * Created by oubai on 4/7/16.
- */
+import edu.dartmouth.cs.camera.database.ExerciseEntry;
+import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
+
 public class ListviewActivity extends Activity {
 
     Calendar mDateAndTime = Calendar.getInstance();
+    private ExerciseEntry mEntry = new ExerciseEntry();
     private ArrayAdapter<String> mAdapter;
     private ListView listView;
 
@@ -32,9 +31,14 @@ public class ListviewActivity extends Activity {
         // show the activity_info layout, which contains the listview and two buttons
         setContentView(R.layout.activity_info);
 
+        if (getIntent().getExtras() != null) {
+            mEntry.setmInputType(getIntent().getExtras().getInt(StartFragment.INPUT_TYPE));
+            mEntry.setmActivityType(getIntent().getExtras().getInt(StartFragment.ACTIVITY_TYPE));
+        }
+
         listView = (ListView) findViewById(R.id.list_view);
         String[] mItems = new String[]{"Data", "Time", "Duration", "Distance", "Calories", "Heart Rate", "Comment"};
-        mAdapter = new ArrayAdapter<String>(this, R.layout.listview_layout, mItems);
+        mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mItems);
         listView.setAdapter(mAdapter);
 
         // listen to different items in the listview
@@ -48,23 +52,32 @@ public class ListviewActivity extends Activity {
                         onTimeClicked(view);
                         break;
                     case 2:
-                        EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title), null, 2);
+                        Integer duration = mEntry.getmDuration();
+                        EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title),
+                                duration == null ? null : (duration + ""), null, 2);
                         edFragment1.show(getFragmentManager(), getString(R.string.ui_listview_duration_title));
                         break;
                     case 3:
-                        EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title), null, 2);
+                        Double distance = mEntry.getmDistance();
+                        EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title),
+                                distance == null ? null : (distance + ""), null, 2);
                         edFragment2.show(getFragmentManager(), getString(R.string.ui_listview_distance_title));
                         break;
                     case 4:
-                        EditDialogFragment edFragment3 = EditDialogFragment.newInstance(getString(R.string.ui_listview_calory_title), null, 2);
+                        Integer calorie = mEntry.getmCalorie();
+                        EditDialogFragment edFragment3 = EditDialogFragment.newInstance(getString(R.string.ui_listview_calory_title),
+                                calorie == null ? null : (calorie + ""), null, 2);
                         edFragment3.show(getFragmentManager(), getString(R.string.ui_listview_calory_title));
                         break;
                     case 5:
-                        EditDialogFragment edFragment4 = EditDialogFragment.newInstance(getString(R.string.ui_listview_heartrate_title), null, 2);
+                        Integer heartRate = mEntry.getmHeartRate();
+                        EditDialogFragment edFragment4 = EditDialogFragment.newInstance(getString(R.string.ui_listview_heartrate_title),
+                                heartRate == null ? null : (heartRate + ""), null, 2);
                         edFragment4.show(getFragmentManager(), getString(R.string.ui_listview_heartrate_title));
                         break;
                     case 6:
-                        EditDialogFragment edFragment5 = EditDialogFragment.newInstance(getString(R.string.ui_listview_comment_title), getString(R.string.ui_listview_comment_summary), 1);
+                        EditDialogFragment edFragment5 = EditDialogFragment.newInstance(getString(R.string.ui_listview_comment_title),
+                                mEntry.getmComment(), getString(R.string.ui_listview_comment_summary), 1);
                         edFragment5.show(getFragmentManager(), getString(R.string.ui_listview_comment_title));
                         break;
                 }
@@ -109,12 +122,31 @@ public class ListviewActivity extends Activity {
 
     // the function of the SAVE and CANCEL button
     public void onListviewSaveClicked(View v) {
+        ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
+        mEntry.setmDateTime(mDateAndTime);
+        long entryNo = dbHelper.insertEntry(mEntry);
+        dbHelper.close();
+        Toast.makeText(ListviewActivity.this, "Entry #" + entryNo + " saved.", Toast.LENGTH_SHORT).show();
         finish();
     }
 
     public void onListviewCancelClicked(View v) {
         Toast.makeText(ListviewActivity.this, "Entry discarded.", Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    public void onEditDialogFinish(String title, String content) {
+        if (title.equals(getString(R.string.ui_listview_duration_title))) {
+            mEntry.setmDuration(Integer.parseInt(content));
+        } else if (title.equals(getString(R.string.ui_listview_distance_title))) {
+            mEntry.setmDistance(Double.parseDouble(content));
+        } else if (title.equals(getString(R.string.ui_listview_calory_title))) {
+            mEntry.setmCalorie(Integer.parseInt(content));
+        } else if (title.equals(getString(R.string.ui_listview_heartrate_title))) {
+            mEntry.setmHeartRate(Integer.parseInt(content));
+        } else if (title.equals(getString(R.string.ui_listview_comment_title))) {
+            mEntry.setmComment(content);
+        }
     }
 
 }
