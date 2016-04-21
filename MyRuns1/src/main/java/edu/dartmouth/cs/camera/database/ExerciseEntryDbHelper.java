@@ -11,9 +11,6 @@ import java.util.List;
 
 import edu.dartmouth.cs.camera.helper.DateHelper;
 
-/**
- * Created by Fanzy on 4/20/16.
- */
 public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_ENTRY = "ENTRIES";
@@ -37,7 +34,7 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
             "input_type INTEGER NOT NULL, " +
             "activity_type INTEGER NOT NULL, " +
             "date_time DATETIME NOT NULL, " +
-            "duration INTEGER NOT NULL, " +
+            "duration INTEGER, " +
             "distance FLOAT, " +
             "avg_pace FLOAT, " +
             "avg_speed FLOAT, " +

@@ -12,26 +12,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TwoLineListItem;
+import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
 
-/**
- * Created by oubai on 4/7/16.
- */
-public class HistoryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<ArrayList<ExerciseEntry>> {
+public class HistoryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<ExerciseEntry>> {
 
+    public static final String ENTRY = "entry";
     // list of array strings which will serve as list items
     ArrayList<ExerciseEntry> listItems = new ArrayList<>();
 
     // define a string adapter which will handle the data of the listview
     ArrayAdapter<ExerciseEntry> arrayAdapter;
-
-    ListView listView;
 
     public HistoryFragment() {
 
@@ -43,22 +41,32 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
     @Override
     public void onViewCreated(View v, Bundle savedInstanceState) {
-        ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(getActivity());
-        listItems.addAll(dbHelper.fetchEntries());
 
         arrayAdapter = new ArrayAdapter<ExerciseEntry>(getActivity(), android.R.layout.simple_list_item_2, listItems) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                TwoLineListItem row;
+                View row;
                 if (convertView == null) {
                     LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    row = (TwoLineListItem) inflater.inflate(android.R.layout.simple_list_item_2, null);
+                    row = inflater.inflate(android.R.layout.simple_list_item_2, null);
                 } else {
-                    row = (TwoLineListItem) convertView;
+                    row = convertView;
                 }
                 ExerciseEntry data = listItems.get(position);
-                row.getText1().setText(data.getmComment());
-                row.getText2().setText(data.getmComment());
+                StringBuilder str1 = new StringBuilder();
+                str1.append(getResources().getStringArray(R.array.spinner_input_type)[data.getmInputType()]);
+                str1.append(": ");
+                str1.append(getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()]);
+                str1.append(", ");
+                str1.append(data.getmDateTime().getTime().toString());
+
+                StringBuilder str2 = new StringBuilder();
+                str2.append(data.getmDistance());
+                str2.append(", ");
+                str2.append(data.getmDuration());
+
+                ((TextView) row.findViewById(android.R.id.text1)).setText(str1.toString());
+                ((TextView) row.findViewById(android.R.id.text2)).setText(str2.toString());
                 return row;
             }
         };
@@ -70,38 +78,39 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(), DisplayEntryActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString(ENTRY, (new Gson()).toJson(listItems.get(position)));
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         };
 
         getListView().setOnItemClickListener(listViewListener);
-    }
-
-    // method which will handle dynamic insertion
-    public void addItems(View v) {
-//        arrayAdapter.add("");
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
-    public Loader<ArrayList<ExerciseEntry>> onCreateLoader(int i, Bundle bundle) {
-        return null;
+    public Loader<List<ExerciseEntry>> onCreateLoader(int i, Bundle bundle) {
+        return new DataLoader(getActivity());
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<ExerciseEntry>> loader, ArrayList<ExerciseEntry> exerciseEntries) {
-
+    public void onLoadFinished(Loader<List<ExerciseEntry>> loader, List<ExerciseEntry> exerciseEntries) {
+        arrayAdapter.clear();
+        arrayAdapter.addAll(exerciseEntries);
     }
 
     @Override
-    public void onLoaderReset(Loader<ArrayList<ExerciseEntry>> loader) {
-
+    public void onLoaderReset(Loader<List<ExerciseEntry>> loader) {
+        arrayAdapter.clear();
     }
 
-    public class DataLoader extends AsyncTaskLoader<ArrayList<ExerciseEntry>> {
+    public static class DataLoader extends AsyncTaskLoader<List<ExerciseEntry>> {
+        Context context;
 
         public DataLoader(Context context) {
             super(context);
-
+            this.context = context;
         }
 
         @Override
@@ -110,8 +119,11 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
         }
 
         @Override
-        public ArrayList<ExerciseEntry> loadInBackground() {
-            return null;
+        public List<ExerciseEntry> loadInBackground() {
+            ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(context);
+            List<ExerciseEntry> result = dbHelper.fetchEntries();
+            dbHelper.close();
+            return result;
         }
     }
 }

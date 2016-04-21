@@ -23,30 +23,6 @@
     <string name="ui_settings_page_title">Webpage</string>
     <string name="ui_settings_page_summary">http://web.cs.dartmouth.edu/</string>
 
-    <!-- Start Fragment -->
-    <string-array name="spinner_input_type">
-        <item>Manual Entry</item>
-        <item>GPS</item>
-        <item>Automatic</item>
-    </string-array>
-
-    <string-array name="spinner_activity_type">
-        <item>Running</item>
-        <item>Walking</item>
-        <item>Standing</item>
-        <item>Cycling</item>
-        <item>Hiking</item>
-        <item>Downhill Skiing</item>
-        <item>Cross-Country Skiing</item>
-        <item>Snowboarding</item>
-        <item>Skating</item>
-        <item>Swimming</item>
-        <item>Mountain Biking</item>
-        <item>Wheelchair</item>
-        <item>Elliptical</item>
-        <item>Other</item>
-    </string-array>
-
     <string name="ui_listview_duration_title">Duration</string>
     <string name="ui_listview_distance_title">Distance</string>
     <string name="ui_listview_calory_title">Calories</string>

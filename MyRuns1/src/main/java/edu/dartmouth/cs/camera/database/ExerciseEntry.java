@@ -4,20 +4,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ExerciseEntry {
+
     private Long id;
 
-    private int mInputType;        // Manual, GPS or automatic
-    private int mActivityType;     // Running, cycling etc.
+    private Integer mInputType;        // Manual, GPS or automatic
+    private Integer mActivityType;     // Running, cycling etc.
     private Calendar mDateTime;    // When does this entry happen
-    private int mDuration;         // Exercise duration in seconds
-    private double mDistance;      // Distance traveled. Either in meters or feet.
-    private double mAvgPace;       // Average pace
-    private double mAvgSpeed;      // Average speed
-    private int mCalorie;          // Calories burnt
-    private double mClimb;         // Climb. Either in meters or feet.
-    private int mHeartRate;        // Heart rate
+    private Integer mDuration;         // Exercise duration in seconds
+    private Double mDistance;      // Distance traveled. Either in meters or feet.
+    private Double mAvgPace;       // Average pace
+    private Double mAvgSpeed;      // Average speed
+    private Integer mCalorie;          // Calories burnt
+    private Double mClimb;         // Climb. Either in meters or feet.
+    private Integer mHeartRate;        // Heart rate
     private String mComment;       // Comments
-    private int mPrivacy;          // Privacy
+    private Integer mPrivacy;          // Privacy
     private ArrayList<String> mLocationList; // Location list
 
     public Long getId() {
@@ -28,19 +29,19 @@ public class ExerciseEntry {
         this.id = id;
     }
 
-    public int getmInputType() {
+    public Integer getmInputType() {
         return mInputType;
     }
 
-    public void setmInputType(int mInputType) {
+    public void setmInputType(Integer mInputType) {
         this.mInputType = mInputType;
     }
 
-    public int getmActivityType() {
+    public Integer getmActivityType() {
         return mActivityType;
     }
 
-    public void setmActivityType(int mActivityType) {
+    public void setmActivityType(Integer mActivityType) {
         this.mActivityType = mActivityType;
     }
 
@@ -52,59 +53,59 @@ public class ExerciseEntry {
         this.mDateTime = mDateTime;
     }
 
-    public int getmDuration() {
+    public Integer getmDuration() {
         return mDuration;
     }
 
-    public void setmDuration(int mDuration) {
+    public void setmDuration(Integer mDuration) {
         this.mDuration = mDuration;
     }
 
-    public double getmDistance() {
+    public Double getmDistance() {
         return mDistance;
     }
 
-    public void setmDistance(double mDistance) {
+    public void setmDistance(Double mDistance) {
         this.mDistance = mDistance;
     }
 
-    public double getmAvgPace() {
+    public Double getmAvgPace() {
         return mAvgPace;
     }
 
-    public void setmAvgPace(double mAvgPace) {
+    public void setmAvgPace(Double mAvgPace) {
         this.mAvgPace = mAvgPace;
     }
 
-    public double getmAvgSpeed() {
+    public Double getmAvgSpeed() {
         return mAvgSpeed;
     }
 
-    public void setmAvgSpeed(double mAvgSpeed) {
+    public void setmAvgSpeed(Double mAvgSpeed) {
         this.mAvgSpeed = mAvgSpeed;
     }
 
-    public int getmCalorie() {
+    public Integer getmCalorie() {
         return mCalorie;
     }
 
-    public void setmCalorie(int mCalorie) {
+    public void setmCalorie(Integer mCalorie) {
         this.mCalorie = mCalorie;
     }
 
-    public double getmClimb() {
+    public Double getmClimb() {
         return mClimb;
     }
 
-    public void setmClimb(double mClimb) {
+    public void setmClimb(Double mClimb) {
         this.mClimb = mClimb;
     }
 
-    public int getmHeartRate() {
+    public Integer getmHeartRate() {
         return mHeartRate;
     }
 
-    public void setmHeartRate(int mHeartRate) {
+    public void setmHeartRate(Integer mHeartRate) {
         this.mHeartRate = mHeartRate;
     }
 
@@ -116,19 +117,19 @@ public class ExerciseEntry {
         this.mComment = mComment;
     }
 
+    public Integer getmPrivacy() {
+        return mPrivacy;
+    }
+
+    public void setmPrivacy(Integer mPrivacy) {
+        this.mPrivacy = mPrivacy;
+    }
+
     public ArrayList<String> getmLocationList() {
         return mLocationList;
     }
 
     public void setmLocationList(ArrayList<String> mLocationList) {
         this.mLocationList = mLocationList;
-    }
-
-    public int getmPrivacy() {
-        return mPrivacy;
-    }
-
-    public void setmPrivacy(int mPrivacy) {
-        this.mPrivacy = mPrivacy;
     }
 }

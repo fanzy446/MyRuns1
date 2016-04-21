@@ -18,9 +18,6 @@ import java.util.Calendar;
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
 
-/**
- * Created by oubai on 4/7/16.
- */
 public class ListviewActivity extends Activity {
 
     Calendar mDateAndTime = Calendar.getInstance();
@@ -55,23 +52,27 @@ public class ListviewActivity extends Activity {
                         onTimeClicked(view);
                         break;
                     case 2:
+                        Integer duration = mEntry.getmDuration();
                         EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title),
-                                mEntry.getmDuration() + "", null, 2);
+                                duration == null ? null : (duration + ""), null, 2);
                         edFragment1.show(getFragmentManager(), getString(R.string.ui_listview_duration_title));
                         break;
                     case 3:
+                        Double distance = mEntry.getmDistance();
                         EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title),
-                                mEntry.getmDistance() + "", null, 2);
+                                distance == null ? null : (distance + ""), null, 2);
                         edFragment2.show(getFragmentManager(), getString(R.string.ui_listview_distance_title));
                         break;
                     case 4:
+                        Integer calorie = mEntry.getmCalorie();
                         EditDialogFragment edFragment3 = EditDialogFragment.newInstance(getString(R.string.ui_listview_calory_title),
-                                mEntry.getmCalorie() + "", null, 2);
+                                calorie == null ? null : (calorie + ""), null, 2);
                         edFragment3.show(getFragmentManager(), getString(R.string.ui_listview_calory_title));
                         break;
                     case 5:
+                        Integer heartRate = mEntry.getmHeartRate();
                         EditDialogFragment edFragment4 = EditDialogFragment.newInstance(getString(R.string.ui_listview_heartrate_title),
-                                mEntry.getmHeartRate() + "", null, 2);
+                                heartRate == null ? null : (heartRate + ""), null, 2);
                         edFragment4.show(getFragmentManager(), getString(R.string.ui_listview_heartrate_title));
                         break;
                     case 6:
