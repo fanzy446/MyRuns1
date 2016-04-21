@@ -14,6 +14,9 @@ import android.widget.Spinner;
  */
 public class StartFragment extends Fragment {
 
+    public static final String INPUT_TYPE = "Input Type";
+    public static final String ACTIVITY_TYPE = "Activity Type";
+
     private Button mStart;
     private Button mSync;
 
@@ -35,14 +38,14 @@ public class StartFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_start, container, false);
 
-        ((Button) view.findViewById(R.id.start_start_button)).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.start_start_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onStartClicked(v);
             }
         });
 
-        ((Button) view.findViewById(R.id.start_sync_button)).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.start_sync_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onStartClicked(v);
@@ -58,21 +61,31 @@ public class StartFragment extends Fragment {
 
         Spinner mSpinner = (Spinner) getActivity().findViewById(R.id.input_type);
         String mItemSelected = mSpinner.getSelectedItem().toString();
-        Intent mIntent;
+
+        int inputType = mSpinner.getSelectedItemPosition();
+        int activityType = ((Spinner) getActivity().findViewById(R.id.activity_type)).getSelectedItemPosition();
+
+        Intent mIntent = null;
 
         switch (mItemSelected) {
             case "Manual Entry":
                 mIntent = new Intent(getActivity(), ListviewActivity.class);
-                startActivity(mIntent);
                 break;
             case "GPS":
                 mIntent = new Intent(getActivity(), GpsActivity.class);
-                startActivity(mIntent);
                 break;
             case "Automatic":
                 mIntent = new Intent(getActivity(), GpsActivity.class);
-                startActivity(mIntent);
                 break;
+        }
+        Bundle bundle = new Bundle();
+        bundle.putInt(INPUT_TYPE, inputType);
+        bundle.putInt(ACTIVITY_TYPE, activityType);
+        if (mIntent != null) {
+            mIntent.putExtras(bundle);
+            startActivity(mIntent);
+        } else {
+//            Log.e("","");
         }
     }
 
