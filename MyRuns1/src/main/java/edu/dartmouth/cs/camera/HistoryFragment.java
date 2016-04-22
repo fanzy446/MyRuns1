@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
         arrayAdapter = new ArrayAdapter<ExerciseEntry>(getActivity(), android.R.layout.simple_list_item_2, listItems) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
+                Log.d("Fanzy", "getView");
                 View row;
                 if (convertView == null) {
                     LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
