@@ -50,7 +50,7 @@ public class DateHelper {
      * @param seconds seconds
      * @return x mins y secs
      */
-    public static String secondsToString(int seconds) {
+    public static String secondsToString(Double seconds) {
         if (seconds >= 60) {
             return String.format("%d mins %d secs", seconds / 60, seconds % 60);
         } else {
