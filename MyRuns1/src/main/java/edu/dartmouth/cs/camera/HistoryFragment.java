@@ -6,8 +6,10 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,9 +61,13 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
                 String str1 = String.format("%s: %s: %s", getResources().getStringArray(R.array.spinner_input_type)[data.getmInputType()],
                         getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()],
                         DateHelper.calendarToString(data.getmDateTime()));
-                String str2 = String.format("%s, %s", data.getmDistance(), DateHelper.secondsToString(data.getmDuration()));
+
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                String unitItems = preferences.getString("list_preference", "");
+                String str2 = String.format("%.2f, %s", unitItems.equals("Metric")?data.getmDistance()*1.6:data.getmDistance(), DateHelper.secondsToString(data.getmDuration()));
 
                 ((TextView) row.findViewById(android.R.id.text1)).setText(str1);
+                ((TextView) row.findViewById(android.R.id.text1)).setTypeface(null, Typeface.BOLD);
                 ((TextView) row.findViewById(android.R.id.text2)).setText(str2);
                 return row;
             }

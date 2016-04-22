@@ -66,7 +66,7 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // Insert a item given each column value
+    // Insert an item given each column value
     public long insertEntry(ExerciseEntry entry) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_INPUT_TYPE, entry.getmInputType());
@@ -121,19 +121,13 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         return entries;
     }
 
-    /**
-     * convert cursor to ExerciseEntry
-     *
-     * @param cursor
-     * @return instance of ExerciseEntry
-     */
     private ExerciseEntry cursorToExerciseEntry(Cursor cursor) {
         ExerciseEntry comment = new ExerciseEntry();
         comment.setId(cursor.getLong(0));
         comment.setmInputType(cursor.getInt(1));
         comment.setmActivityType(cursor.getInt(2));
         comment.setmDateTime(DateHelper.dataToCalendar(cursor.getString(3)));
-        comment.setmDuration(cursor.getInt(4));
+        comment.setmDuration(cursor.getDouble(4));
         comment.setmDistance(cursor.getDouble(5));
 //        comment.setmAvgPace(cursor.getDouble(6));
 //        comment.setmAvgSpeed(cursor.getDouble(7));
