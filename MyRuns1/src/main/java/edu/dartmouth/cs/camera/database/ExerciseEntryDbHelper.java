@@ -71,7 +71,7 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_INPUT_TYPE, entry.getmInputType());
         values.put(COLUMN_ACTIVITY_TYPE, entry.getmActivityType());
-        values.put(COLUMN_DATETIME, DateHelper.fromCalendarToString(entry.getmDateTime()));
+        values.put(COLUMN_DATETIME, DateHelper.calendarToData(entry.getmDateTime()));
         values.put(COLUMN_DURATION, entry.getmDuration());
         values.put(COLUMN_DISTANCE, entry.getmDistance());
 //        values.put(COLUMN_AVG_PACE, entry.getmAvgPace());
@@ -121,12 +121,18 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         return entries;
     }
 
+    /**
+     * convert cursor to ExerciseEntry
+     *
+     * @param cursor
+     * @return instance of ExerciseEntry
+     */
     private ExerciseEntry cursorToExerciseEntry(Cursor cursor) {
         ExerciseEntry comment = new ExerciseEntry();
         comment.setId(cursor.getLong(0));
         comment.setmInputType(cursor.getInt(1));
         comment.setmActivityType(cursor.getInt(2));
-        comment.setmDateTime(DateHelper.fromStringToCalendar(cursor.getString(3)));
+        comment.setmDateTime(DateHelper.dataToCalendar(cursor.getString(3)));
         comment.setmDuration(cursor.getInt(4));
         comment.setmDistance(cursor.getDouble(5));
 //        comment.setmAvgPace(cursor.getDouble(6));

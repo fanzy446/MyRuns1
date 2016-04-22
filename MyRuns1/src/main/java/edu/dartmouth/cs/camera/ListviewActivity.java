@@ -135,7 +135,14 @@ public class ListviewActivity extends Activity {
         finish();
     }
 
+    /**
+     * The callback function to get data from EditDialogFragment
+     *
+     * @param title   the title of EditDialogFragment, used to differentiate the type of EditDialogFragment
+     * @param content the content user inputs
+     */
     public void onEditDialogFinish(String title, String content) {
+        //TODO: Implement an interface containing this method
         if (title.equals(getString(R.string.ui_listview_duration_title))) {
             mEntry.setmDuration(Integer.parseInt(content));
         } else if (title.equals(getString(R.string.ui_listview_distance_title))) {

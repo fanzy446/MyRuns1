@@ -21,6 +21,7 @@ import java.util.List;
 
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
+import edu.dartmouth.cs.camera.helper.DateHelper;
 
 public class HistoryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<ExerciseEntry>> {
 
@@ -53,20 +54,13 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
                     row = convertView;
                 }
                 ExerciseEntry data = listItems.get(position);
-                StringBuilder str1 = new StringBuilder();
-                str1.append(getResources().getStringArray(R.array.spinner_input_type)[data.getmInputType()]);
-                str1.append(": ");
-                str1.append(getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()]);
-                str1.append(", ");
-                str1.append(data.getmDateTime().getTime().toString());
+                String str1 = String.format("%s: %s: %s", getResources().getStringArray(R.array.spinner_input_type)[data.getmInputType()],
+                        getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()],
+                        DateHelper.calendarToString(data.getmDateTime()));
+                String str2 = String.format("%s, %s", data.getmDistance(), DateHelper.secondsToString(data.getmDuration()));
 
-                StringBuilder str2 = new StringBuilder();
-                str2.append(data.getmDistance());
-                str2.append(", ");
-                str2.append(data.getmDuration());
-
-                ((TextView) row.findViewById(android.R.id.text1)).setText(str1.toString());
-                ((TextView) row.findViewById(android.R.id.text2)).setText(str2.toString());
+                ((TextView) row.findViewById(android.R.id.text1)).setText(str1);
+                ((TextView) row.findViewById(android.R.id.text2)).setText(str2);
                 return row;
             }
         };

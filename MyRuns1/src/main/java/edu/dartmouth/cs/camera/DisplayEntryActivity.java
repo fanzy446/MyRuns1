@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
+import edu.dartmouth.cs.camera.helper.DateHelper;
 
 public class DisplayEntryActivity extends Activity {
 
@@ -26,13 +27,14 @@ public class DisplayEntryActivity extends Activity {
             mEntry = (new Gson()).fromJson(bundle.getString(HistoryFragment.ENTRY), ExerciseEntry.class);
         }
 
+        //Initialize contents in EditText
         ((EditText) findViewById(R.id.et_display_inputtype)).setText(getResources().getStringArray(R.array.spinner_input_type)[mEntry.getmInputType()]);
         ((EditText) findViewById(R.id.et_display_activitytype)).setText(getResources().getStringArray(R.array.spinner_activity_type)[mEntry.getmActivityType()]);
-        ((EditText) findViewById(R.id.et_display_datetime)).setText(mEntry.getmDateTime().getTime().toString());
-        ((EditText) findViewById(R.id.et_display_duration)).setText(mEntry.getmDuration() + "");
-        ((EditText) findViewById(R.id.et_display_distance)).setText(mEntry.getmDistance() + "");
-        ((EditText) findViewById(R.id.et_display_calorie)).setText(mEntry.getmCalorie() + "");
-        ((EditText) findViewById(R.id.et_display_heartrate)).setText(mEntry.getmHeartRate() + "");
+        ((EditText) findViewById(R.id.et_display_datetime)).setText(DateHelper.calendarToString(mEntry.getmDateTime()));
+        ((EditText) findViewById(R.id.et_display_duration)).setText(DateHelper.secondsToString(mEntry.getmDuration()));
+        ((EditText) findViewById(R.id.et_display_distance)).setText(String.format("%s Miles", mEntry.getmDistance()));
+        ((EditText) findViewById(R.id.et_display_calorie)).setText(String.format("%d cals", mEntry.getmCalorie()));
+        ((EditText) findViewById(R.id.et_display_heartrate)).setText(String.format("%d bpm", mEntry.getmHeartRate()));
     }
 
     @Override
