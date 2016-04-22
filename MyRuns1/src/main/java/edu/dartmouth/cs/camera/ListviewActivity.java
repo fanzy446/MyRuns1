@@ -52,7 +52,7 @@ public class ListviewActivity extends Activity {
                         onTimeClicked(view);
                         break;
                     case 2:
-                        Integer duration = mEntry.getmDuration();
+                        Double duration = mEntry.getmDuration();
                         EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title),
                                 duration == null ? null : (duration + ""), null, 2);
                         edFragment1.show(getFragmentManager(), getString(R.string.ui_listview_duration_title));
@@ -60,7 +60,7 @@ public class ListviewActivity extends Activity {
                     case 3:
                         Double distance = mEntry.getmDistance();
                         EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title),
-                                distance == null ? null : (distance + ""), null, 2);
+                                distance == null ? null : (distance + ""), null, 3);
                         edFragment2.show(getFragmentManager(), getString(R.string.ui_listview_distance_title));
                         break;
                     case 4:
@@ -144,7 +144,7 @@ public class ListviewActivity extends Activity {
     public void onEditDialogFinish(String title, String content) {
         //TODO: Implement an interface containing this method
         if (title.equals(getString(R.string.ui_listview_duration_title))) {
-            mEntry.setmDuration(Integer.parseInt(content));
+            mEntry.setmDuration(Double.parseDouble(content));
         } else if (title.equals(getString(R.string.ui_listview_distance_title))) {
             mEntry.setmDistance(Double.parseDouble(content));
         } else if (title.equals(getString(R.string.ui_listview_calory_title))) {
