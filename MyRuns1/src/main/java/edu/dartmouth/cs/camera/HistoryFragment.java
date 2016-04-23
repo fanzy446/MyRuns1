@@ -6,9 +6,10 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,12 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
@@ -49,7 +55,6 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
         arrayAdapter = new ArrayAdapter<ExerciseEntry>(getActivity(), android.R.layout.simple_list_item_2, listItems) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                Log.d("Fanzy", "getView");
                 View row;
                 if (convertView == null) {
                     LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -58,6 +63,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
                     row = convertView;
                 }
                 ExerciseEntry data = listItems.get(position);
+
                 String str1 = String.format("%s: %s: %s", getResources().getStringArray(R.array.spinner_input_type)[data.getmInputType()],
                         getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()],
                         DateHelper.calendarToString(data.getmDateTime()));
@@ -65,9 +71,11 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
                 String str2 = String.format("%s, %s", DistanceUnitHelper.distanceToString(getContext(), data.getmDistance(), true), DateHelper.secondsToString(data.getmDuration()));
 
-                ((TextView) row.findViewById(android.R.id.text1)).setText(str1);
+
+                ((TextView) row.findViewById(android.R.id.text1)).setText(str1.toString());
                 ((TextView) row.findViewById(android.R.id.text1)).setTypeface(null, Typeface.BOLD);
-                ((TextView) row.findViewById(android.R.id.text2)).setText(str2);
+                ((TextView) row.findViewById(android.R.id.text2)).setText(str2.toString());
+
                 return row;
             }
         };
@@ -88,11 +96,6 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
         getListView().setOnItemClickListener(listViewListener);
         getLoaderManager().initLoader(0, null, this);
-        if (getLoaderManager().getLoader(0) != null) {
-            Log.d("Fanzy", "loader loads successfully.");
-        } else {
-            Log.d("Fanzy", "loader loads failed.");
-        }
     }
 
     @Override
@@ -131,5 +134,9 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
             dbHelper.close();
             return result;
         }
+    }
+
+    public void reloadData() {
+        getLoaderManager().restartLoader(0, null, this);
     }
 }

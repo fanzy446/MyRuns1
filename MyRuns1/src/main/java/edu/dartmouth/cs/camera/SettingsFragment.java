@@ -3,7 +3,7 @@ package edu.dartmouth.cs.camera;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.util.Log;
+import android.support.v4.view.ViewPager;
 import android.widget.CheckBox;
 
 public class SettingsFragment extends PreferenceFragment {
@@ -25,16 +25,17 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
+        // catch listPreference modification, change the distance unit
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                Log.d("Fanzy", "onSharedPreferenceChanged: " + s);
                 if (s.equals(getString(R.string.preference_key_settings_unit))) {
-                    //TODO: refresh the list in the history fragment
+                    ViewPager viewPager = (ViewPager) getActivity().findViewById(R.id.viewpager);
+                    MainActivity.ViewPagerAdapter adapter = (MainActivity.ViewPagerAdapter) viewPager.getAdapter();
+                    HistoryFragment fragment = (HistoryFragment) adapter.getItem(1);
+                    fragment.reloadData();
                 }
             }
         });
     }
-
-
 }
