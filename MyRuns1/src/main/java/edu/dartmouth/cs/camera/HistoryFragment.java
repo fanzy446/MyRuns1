@@ -107,10 +107,12 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
         arrayAdapter.clear();
     }
 
+    // reload the data shown in HistoryFragment
     public void reloadData() {
         getLoaderManager().getLoader(0).onContentChanged();
     }
 
+    // create DataLoader with AsyncTaskLoader
     public static class DataLoader extends AsyncTaskLoader<List<ExerciseEntry>> {
         Context context;
 

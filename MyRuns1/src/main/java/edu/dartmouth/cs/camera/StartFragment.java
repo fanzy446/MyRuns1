@@ -84,8 +84,6 @@ public class StartFragment extends Fragment {
         if (mIntent != null) {
             mIntent.putExtras(bundle);
             startActivity(mIntent);
-        } else {
-//            Log.e("","");
         }
     }
 
