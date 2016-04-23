@@ -13,7 +13,7 @@
         </Preference>
 
         <CheckBoxPreference
-            android:key="checkbox_preference"
+            android:key="@string/preference_key_settings_privacy"
             android:summary="@string/ui_settings_privacy_summary"
             android:title="@string/ui_settings_privacy_title" />
 
@@ -25,13 +25,13 @@
             android:dialogTitle="@string/ui_settings_unit_title"
             android:entries="@array/ui_settings_unit_items"
             android:entryValues="@array/ui_settings_unit_items_values"
-            android:key="list_preference"
+            android:key="@string/preference_key_settings_unit"
             android:summary="@string/ui_settings_unit_title"
             android:title="@string/ui_settings_unit_title" />
 
         <EditTextPreference
             android:dialogTitle="@string/ui_settings_comment_title"
-            android:key="edittext_preference"
+            android:key="@string/preference_key_settings_comments"
             android:summary="@string/ui_settings_comment_summary"
             android:title="@string/ui_settings_comment_title" />
 

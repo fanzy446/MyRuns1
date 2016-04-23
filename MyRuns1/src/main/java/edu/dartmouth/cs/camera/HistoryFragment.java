@@ -6,10 +6,9 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +24,7 @@ import java.util.List;
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.camera.helper.DateHelper;
+import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
 public class HistoryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<ExerciseEntry>> {
 
@@ -62,9 +62,8 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
                         getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()],
                         DateHelper.calendarToString(data.getmDateTime()));
 
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-                String unitItems = preferences.getString("list_preference", "");
-                String str2 = String.format("%.2f, %s", unitItems.equals("Metric")?data.getmDistance()*1.6:data.getmDistance(), DateHelper.secondsToString(data.getmDuration()));
+
+                String str2 = String.format("%s, %s", DistanceUnitHelper.distanceToString(getContext(), data.getmDistance(), true), DateHelper.secondsToString(data.getmDuration()));
 
                 ((TextView) row.findViewById(android.R.id.text1)).setText(str1);
                 ((TextView) row.findViewById(android.R.id.text1)).setTypeface(null, Typeface.BOLD);
@@ -89,6 +88,11 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
         getListView().setOnItemClickListener(listViewListener);
         getLoaderManager().initLoader(0, null, this);
+        if (getLoaderManager().getLoader(0) != null) {
+            Log.d("Fanzy", "loader loads successfully.");
+        } else {
+            Log.d("Fanzy", "loader loads failed.");
+        }
     }
 
     @Override

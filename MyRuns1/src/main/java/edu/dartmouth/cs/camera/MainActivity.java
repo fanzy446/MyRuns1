@@ -40,7 +40,6 @@ public class MainActivity extends Activity {
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 
-
     class ViewPagerAdapter extends FragmentPagerAdapter {
         public static final int START = 0;
         public static final int HISTORY = 1;

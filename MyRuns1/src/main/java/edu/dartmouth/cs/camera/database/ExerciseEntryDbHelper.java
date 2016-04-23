@@ -127,7 +127,7 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         comment.setmInputType(cursor.getInt(1));
         comment.setmActivityType(cursor.getInt(2));
         comment.setmDateTime(DateHelper.dataToCalendar(cursor.getString(3)));
-        comment.setmDuration(cursor.getDouble(4));
+        comment.setmDuration(cursor.getInt(4));
         comment.setmDistance(cursor.getDouble(5));
 //        comment.setmAvgPace(cursor.getDouble(6));
 //        comment.setmAvgSpeed(cursor.getDouble(7));
