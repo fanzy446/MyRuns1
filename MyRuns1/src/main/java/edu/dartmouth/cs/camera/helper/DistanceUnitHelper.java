@@ -11,6 +11,14 @@ import edu.dartmouth.cs.camera.R;
 
 public class DistanceUnitHelper {
 
+    /**
+     * convert distance to String in UI
+     *
+     * @param context  context
+     * @param dis      distance
+     * @param withUnit whether the string contains unit in the end or not
+     * @return the String in UI
+     */
     public static String distanceToString(Context context, double dis, boolean withUnit) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String unitItems = preferences.getString(context.getString(R.string.preference_key_settings_unit), "");

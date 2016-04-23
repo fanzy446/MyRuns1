@@ -4,10 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -31,6 +28,15 @@ public class EditDialogFragment extends DialogFragment {
         // Required empty public constructor
     }
 
+    /**
+     * create an instance of EditDialogFragment
+     *
+     * @param title     the title of the dialog
+     * @param content   the initial content of Edittext
+     * @param hint      the hint of Edittext
+     * @param inputtype the inputtype of Edittext
+     * @return
+     */
     public static EditDialogFragment newInstance(String title, String content, String hint, int inputtype) {
         EditDialogFragment fragment = new EditDialogFragment();
         Bundle args = new Bundle();
@@ -63,7 +69,6 @@ public class EditDialogFragment extends DialogFragment {
         input.setHint(mHint);
         input.setText(mContent);
         input.setInputType(mInputType);
-        if(mInputType == 2) input.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
         if(mTitle.equals("Comment")) {
             input.setHeight(400);
         }
