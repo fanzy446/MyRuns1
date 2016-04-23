@@ -6,10 +6,8 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +17,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
@@ -114,6 +107,10 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
         arrayAdapter.clear();
     }
 
+    public void reloadData() {
+        getLoaderManager().getLoader(0).onContentChanged();
+    }
+
     public static class DataLoader extends AsyncTaskLoader<List<ExerciseEntry>> {
         Context context;
 
@@ -134,9 +131,5 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
             dbHelper.close();
             return result;
         }
-    }
-
-    public void reloadData() {
-        getLoaderManager().restartLoader(0, null, this);
     }
 }
