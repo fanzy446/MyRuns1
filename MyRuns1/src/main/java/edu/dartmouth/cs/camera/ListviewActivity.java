@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -52,32 +53,32 @@ public class ListviewActivity extends Activity {
                         onTimeClicked(view);
                         break;
                     case 2:
-                        Double duration = mEntry.getmDuration();
+                        Integer duration = mEntry.getmDuration();
                         EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title),
-                                duration == null ? null : (duration + ""), null, 2);
+                                duration == null ? null : (duration + ""), null, InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                         edFragment1.show(getFragmentManager(), getString(R.string.ui_listview_duration_title));
                         break;
                     case 3:
                         Double distance = mEntry.getmDistance();
                         EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title),
-                                distance == null ? null : (distance + ""), null, 3);
+                                distance == null ? null : (distance + ""), null, InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                         edFragment2.show(getFragmentManager(), getString(R.string.ui_listview_distance_title));
                         break;
                     case 4:
                         Integer calorie = mEntry.getmCalorie();
                         EditDialogFragment edFragment3 = EditDialogFragment.newInstance(getString(R.string.ui_listview_calory_title),
-                                calorie == null ? null : (calorie + ""), null, 2);
+                                calorie == null ? null : (calorie + ""), null, InputType.TYPE_CLASS_NUMBER);
                         edFragment3.show(getFragmentManager(), getString(R.string.ui_listview_calory_title));
                         break;
                     case 5:
                         Integer heartRate = mEntry.getmHeartRate();
                         EditDialogFragment edFragment4 = EditDialogFragment.newInstance(getString(R.string.ui_listview_heartrate_title),
-                                heartRate == null ? null : (heartRate + ""), null, 2);
+                                heartRate == null ? null : (heartRate + ""), null, InputType.TYPE_CLASS_NUMBER);
                         edFragment4.show(getFragmentManager(), getString(R.string.ui_listview_heartrate_title));
                         break;
                     case 6:
                         EditDialogFragment edFragment5 = EditDialogFragment.newInstance(getString(R.string.ui_listview_comment_title),
-                                mEntry.getmComment(), getString(R.string.ui_listview_comment_summary), 1);
+                                mEntry.getmComment(), getString(R.string.ui_listview_comment_summary), InputType.TYPE_CLASS_TEXT);
                         edFragment5.show(getFragmentManager(), getString(R.string.ui_listview_comment_title));
                         break;
                 }
@@ -144,7 +145,7 @@ public class ListviewActivity extends Activity {
     public void onEditDialogFinish(String title, String content) {
         //TODO: Implement an interface containing this method
         if (title.equals(getString(R.string.ui_listview_duration_title))) {
-            mEntry.setmDuration(Double.parseDouble(content));
+            mEntry.setmDuration((int) (60 * Double.parseDouble(content)));
         } else if (title.equals(getString(R.string.ui_listview_distance_title))) {
             mEntry.setmDistance(Double.parseDouble(content));
         } else if (title.equals(getString(R.string.ui_listview_calory_title))) {

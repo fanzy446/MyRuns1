@@ -5,15 +5,19 @@
 
     <!-- Setting Fragment -->
     <string name="ui_settings_preferences_title">Account Preferences</string>
+
     <string name="ui_settings_profile_title">Names, Email, Class, etc</string>
     <string name="ui_settings_profile_summary">User Profile</string>
+
     <string name="ui_settings_privacy_title">Privacy Setting</string>
     <string name="ui_settings_privacy_summary">Posting your records anonymously</string>
     <string name="preference_key_settings_privacy">settings_privacy</string>
 
     <string name="ui_settings_additional_title">Additional Settings</string>
+
     <string name="ui_settings_unit_title">Unit Preference</string>
     <string name="ui_settings_unit_summary">Select the units</string>
+    <string name="preference_key_settings_unit">settings_unit</string>
 
     <string name="ui_settings_comment_title">Comments</string>
     <string name="ui_settings_comment_summary">Please enter your comments</string>
@@ -23,6 +27,7 @@
     <string name="ui_settings_page_title">Webpage</string>
     <string name="ui_settings_page_summary">http://web.cs.dartmouth.edu/</string>
 
+    <!-- ListviewActivity -->
     <string name="ui_listview_duration_title">Duration</string>
     <string name="ui_listview_distance_title">Distance</string>
     <string name="ui_listview_calory_title">Calories</string>

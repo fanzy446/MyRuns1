@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.camera.helper.DateHelper;
+import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
 public class DisplayEntryActivity extends Activity {
 
@@ -32,7 +33,7 @@ public class DisplayEntryActivity extends Activity {
         ((EditText) findViewById(R.id.et_display_activitytype)).setText(getResources().getStringArray(R.array.spinner_activity_type)[mEntry.getmActivityType()]);
         ((EditText) findViewById(R.id.et_display_datetime)).setText(DateHelper.calendarToString(mEntry.getmDateTime()));
         ((EditText) findViewById(R.id.et_display_duration)).setText(DateHelper.secondsToString(mEntry.getmDuration()));
-        ((EditText) findViewById(R.id.et_display_distance)).setText(String.format("%s Miles", mEntry.getmDistance()));
+        ((EditText) findViewById(R.id.et_display_distance)).setText(DistanceUnitHelper.distanceToString(this, mEntry.getmDistance(), true));
         ((EditText) findViewById(R.id.et_display_calorie)).setText(String.format("%d cals", mEntry.getmCalorie()));
         ((EditText) findViewById(R.id.et_display_heartrate)).setText(String.format("%d bpm", mEntry.getmHeartRate()));
     }

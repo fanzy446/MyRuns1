@@ -1,13 +1,10 @@
 package edu.dartmouth.cs.camera;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.widget.ArrayAdapter;
+import android.util.Log;
 import android.widget.CheckBox;
-import android.widget.ListView;
-
-import java.util.List;
 
 public class SettingsFragment extends PreferenceFragment {
 
@@ -28,6 +25,16 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+                Log.d("Fanzy", "onSharedPreferenceChanged: " + s);
+                if (s.equals(getString(R.string.preference_key_settings_unit))) {
+                    //TODO: refresh the list in the history fragment
+                }
+            }
+        });
     }
+
 
 }

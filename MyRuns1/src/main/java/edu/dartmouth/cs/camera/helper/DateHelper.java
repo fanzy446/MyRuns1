@@ -37,7 +37,7 @@ public class DateHelper {
     /**
      * convert calendar to the string shown in UI
      *
-     * @param calendar
+     * @param calendar calendar
      * @return string in UI
      */
     public static String calendarToString(Calendar calendar) {
@@ -50,7 +50,7 @@ public class DateHelper {
      * @param seconds seconds
      * @return x mins y secs
      */
-    public static String secondsToString(Double seconds) {
+    public static String secondsToString(Integer seconds) {
         if (seconds >= 60) {
             return String.format("%d mins %d secs", seconds / 60, seconds % 60);
         } else {
