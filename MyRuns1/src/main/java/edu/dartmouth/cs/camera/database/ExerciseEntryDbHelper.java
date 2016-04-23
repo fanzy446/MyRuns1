@@ -121,6 +121,12 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         return entries;
     }
 
+    /**
+     * convert cursor to ExerciseEntry
+     *
+     * @param cursor cursor
+     * @return the instance of ExerciseEntry
+     */
     private ExerciseEntry cursorToExerciseEntry(Cursor cursor) {
         ExerciseEntry comment = new ExerciseEntry();
         comment.setId(cursor.getLong(0));

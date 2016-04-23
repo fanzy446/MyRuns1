@@ -121,7 +121,7 @@ public class ListviewActivity extends Activity {
 
     }
 
-    // the function of the SAVE and CANCEL button
+    // the recall function of the SAVE button
     public void onListviewSaveClicked(View v) {
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
         mEntry.setmDateTime(mDateAndTime);
@@ -131,6 +131,7 @@ public class ListviewActivity extends Activity {
         finish();
     }
 
+    // the recall function of the CANCEL button
     public void onListviewCancelClicked(View v) {
         Toast.makeText(ListviewActivity.this, "Entry discarded.", Toast.LENGTH_SHORT).show();
         finish();
