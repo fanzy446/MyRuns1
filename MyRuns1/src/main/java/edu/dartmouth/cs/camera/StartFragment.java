@@ -72,10 +72,10 @@ public class StartFragment extends Fragment {
                 mIntent = new Intent(getActivity(), ListviewActivity.class);
                 break;
             case "GPS":
-                mIntent = new Intent(getActivity(), GpsActivity.class);
+                mIntent = new Intent(getActivity(), MapDisplayActivity.class);
                 break;
             case "Automatic":
-                mIntent = new Intent(getActivity(), GpsActivity.class);
+                mIntent = new Intent(getActivity(), MapDisplayActivity.class);
                 break;
         }
         Bundle bundle = new Bundle();
