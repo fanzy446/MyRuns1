@@ -27,7 +27,7 @@ import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
 public class HistoryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<ExerciseEntry>> {
 
-    public static final String ENTRY = "entry";
+    public static final String ENTRY = "history_entry";
     // list of array strings which will serve as list items
     ArrayList<ExerciseEntry> listItems = new ArrayList<>();
 
@@ -65,9 +65,9 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
                 String str2 = String.format("%s, %s", DistanceUnitHelper.distanceToString(getContext(), data.getmDistance(), true), DateHelper.secondsToString(data.getmDuration()));
 
 
-                ((TextView) row.findViewById(android.R.id.text1)).setText(str1.toString());
+                ((TextView) row.findViewById(android.R.id.text1)).setText(str1);
                 ((TextView) row.findViewById(android.R.id.text1)).setTypeface(null, Typeface.BOLD);
-                ((TextView) row.findViewById(android.R.id.text2)).setText(str2.toString());
+                ((TextView) row.findViewById(android.R.id.text2)).setText(str2);
 
                 return row;
             }
@@ -79,11 +79,19 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
         AdapterView.OnItemClickListener listViewListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), DisplayEntryActivity.class);
+                ExerciseEntry entry = listItems.get(position);
                 Bundle bundle = new Bundle();
-                bundle.putString(ENTRY, (new Gson()).toJson(listItems.get(position)));
-                intent.putExtras(bundle);
-                startActivity(intent);
+                bundle.putString(ENTRY, (new Gson()).toJson(entry));
+                if (entry.getmInputType() == 0) {
+                    Intent intent = new Intent(getActivity(), DisplayEntryActivity.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getActivity(), MapDisplayActivity.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+
             }
         };
 

@@ -1,5 +1,7 @@
 package edu.dartmouth.cs.camera.database;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -19,7 +21,7 @@ public class ExerciseEntry {
     private Integer mHeartRate;        // Heart rate
     private String mComment;       // Comments
     private Integer mPrivacy;          // Privacy
-    private ArrayList<String> mLocationList; // Location list
+    private ArrayList<LatLng> mLocationList = new ArrayList<>(); // Location list
 
     public Long getId() {
         return id;
@@ -125,11 +127,15 @@ public class ExerciseEntry {
         this.mPrivacy = mPrivacy;
     }
 
-    public ArrayList<String> getmLocationList() {
+    public ArrayList<LatLng> getmLocationList() {
         return mLocationList;
     }
 
-    public void setmLocationList(ArrayList<String> mLocationList) {
+    public void setmLocationList(ArrayList<LatLng> mLocationList) {
         this.mLocationList = mLocationList;
+    }
+
+    public void appendLocationList(LatLng location) {
+        mLocationList.add(location);
     }
 }

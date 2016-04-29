@@ -6,6 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,12 +79,12 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DURATION, entry.getmDuration());
         values.put(COLUMN_DISTANCE, entry.getmDistance());
 //        values.put(COLUMN_AVG_PACE, entry.getmAvgPace());
-//        values.put(COLUMN_AVG_SPEED, entry.getmAvgSpeed());
+        values.put(COLUMN_AVG_SPEED, entry.getmAvgSpeed());
         values.put(COLUMN_CALORIE, entry.getmCalorie());
-        values.put(COLUMN_HEART_RATE, entry.getmHeartRate());
+//        values.put(COLUMN_HEART_RATE, entry.getmHeartRate());
         values.put(COLUMN_COMMENT, entry.getmComment());
 //        values.put(COLUMN_PRIVACY, entry.getmPrivacy());
-//        values.put(COLUMN_GPSDATA, entry.getmLocationList());
+        values.put(COLUMN_GPSDATA, (new Gson()).toJson(entry.getmLocationList()));
         return database.insert(TABLE_ENTRY, null,
                 values);
     }
@@ -136,14 +140,14 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper {
         comment.setmDuration(cursor.getInt(4));
         comment.setmDistance(cursor.getDouble(5));
 //        comment.setmAvgPace(cursor.getDouble(6));
-//        comment.setmAvgSpeed(cursor.getDouble(7));
+        comment.setmAvgSpeed(cursor.getDouble(7));
         comment.setmCalorie(cursor.getInt(8));
         comment.setmClimb(cursor.getDouble(9));
-        comment.setmHeartRate(cursor.getInt(10));
+//        comment.setmHeartRate(cursor.getInt(10));
         comment.setmComment(cursor.getString(11));
 //        comment.setmPrivacy(cursor.getInt(12));
-//        comment.setmLocationList();
-
+        comment.setmLocationList((ArrayList<LatLng>) (new Gson()).fromJson(cursor.getString(13), new TypeToken<List<LatLng>>() {
+        }.getType()));
         return comment;
     }
 }
