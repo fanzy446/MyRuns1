@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MyRuns3</string>
+    <string name="app_name">MyRuns4</string>
     <string name="preference_name">my_shared_preferences</string>
 
     <!-- Setting Fragment -->
@@ -61,6 +61,7 @@
     <string name="title_activity_map_display">Map</string>
 
     <!-- MapDisplayActivity -->
-
+    <string name="ui_start_gps_notification_text">Recording your path now</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>
