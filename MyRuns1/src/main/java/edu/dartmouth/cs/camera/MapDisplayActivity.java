@@ -1,23 +1,23 @@
 package edu.dartmouth.cs.camera;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,10 +39,11 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     public static final String ENTRY = "maps_entry";
     public static final String CURSPEED = "maps_curspeed";
-    private final Messenger mMessenger = new Messenger(
-            new IncomingMessageHandler());
     private GoogleMap mMap;
-    private Messenger mServiceMessenger = null;
+
+    private TrackingService mService = null;
+    private LocalBroadcastManager bm = null;
+
     private ExerciseEntry mEntry = null;
     private TextView mTypeText = null;
     private TextView mAvgspeedText = null;
@@ -56,6 +57,20 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private Marker mEnd = null;
 
     private double mSpeed = 0;
+    private boolean mBounded = false;
+
+    private BroadcastReceiver onLocationReceived = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent i) {
+            Log.d("Fanzy", getClass().getName() + ": new location available");
+            Toast.makeText(MapDisplayActivity.this, "New location available!", Toast.LENGTH_LONG).show();
+            if (mBounded) {
+                mEntry = mService.getmEntry();
+                mSpeed = mService.getCurSpeed();
+                updateUI();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +89,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         mCalorieText = (TextView) findViewById(R.id.tv_start_gps_calorie);
         mDistanceText = (TextView) findViewById(R.id.tv_start_gps_distance);
 
+        bm = LocalBroadcastManager.getInstance(this);
+        bm.registerReceiver(onLocationReceived, new IntentFilter(TrackingService.LOCATION_UPDATE));
 
         Bundle bundle = getIntent().getExtras();
         if (!bundle.containsKey(HistoryFragment.ENTRY)) {
@@ -86,19 +103,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
             findViewById(R.id.btn_start_gps_save).setVisibility(View.INVISIBLE);
             findViewById(R.id.btn_start_gps_cancel).setVisibility(View.INVISIBLE);
         }
-
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d("Fanzy", "UI: onMapReady");
@@ -114,6 +120,7 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     protected void onDestroy() {
         super.onDestroy();
         doUnbindService();
+        bm.unregisterReceiver(onLocationReceived);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -145,61 +152,36 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
         dbHelper.insertEntry(mEntry);
         dbHelper.close();
-//        stopService(new Intent(this, TrackingService.class));
         finish();
     }
 
     public void onCancelClicked(View v) {
-//        stopService(new Intent(this, TrackingService.class));
         finish();
     }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.d("Fanzy", "UI:onServiceConnected()");
-        mServiceMessenger = new Messenger(service);
-        try {
-            Message msg = Message.obtain(null, TrackingService.MSG_REGISTER_CLIENT);
-            msg.replyTo = mMessenger;
-            if (mEntry != null && mEntry.getmInputType() != null) {
-                msg.arg1 = mEntry.getmInputType();
-                msg.arg2 = mEntry.getmActivityType();
-            }
-            Log.d("Fanzy", "UI: TX MSG_REGISTER_CLIENT");
-            mServiceMessenger.send(msg);
-        } catch (RemoteException e) {
-            // In this case the service has crashed before we could even do
-            // anything with it
-        }
+        mService = ((TrackingService.TrackingBinder) service).getService();
+        mService.initializeEntry(mEntry.getmInputType(), mEntry.getmActivityType());
+        mBounded = true;
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        mServiceMessenger = null;
+        mService = null;
+        mBounded = false;
     }
 
     private void doBindService() {
         Log.d("Fanzy", "UI:MyService.isRunning: doBindService()");
-//        if (!TrackingService.isRunning()) {
-//            startService(new Intent(this, TrackingService.class));
-//        }
         bindService(new Intent(this, TrackingService.class), this, Context.BIND_AUTO_CREATE);
     }
 
     private void doUnbindService() {
         Log.d("Fanzy", "UI:doUnBindService()");
-        if (mServiceMessenger != null) {
-            try {
-                Message msg = Message.obtain(null,
-                        TrackingService.MSG_UNREGISTER_CLIENT);
-                Log.d("Fanzy", "C: TX MSG_UNREGISTER_CLIENT");
-                msg.replyTo = mMessenger;
-                mServiceMessenger.send(msg);
-                unbindService(this);
-            } catch (RemoteException e) {
-                // There is nothing special we need to do if the service has
-                // crashed.
-            }
+        if (mService != null) {
+            unbindService(this);
         }
     }
 
@@ -231,25 +213,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
                         icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("Start"));
             }
 
-        }
-    }
-
-    private class IncomingMessageHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d("Fanzy", "UI:IncomingHandler:handleMessage");
-            switch (msg.what) {
-                case TrackingService.MSG_UPDATE_ENTRY:
-                    Bundle bundle = msg.getData();
-                    mSpeed = bundle.getDouble(CURSPEED);
-                    mEntry = (new Gson()).fromJson(bundle.getString(ENTRY), ExerciseEntry.class);
-                    if (mMap != null) {
-                        updateUI();
-                    }
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
         }
     }
 }
