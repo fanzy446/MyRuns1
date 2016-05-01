@@ -21,6 +21,8 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 
+import java.util.Calendar;
+
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
@@ -30,16 +32,16 @@ public class TrackingService extends Service {
     public static final int MSG_UNREGISTER_CLIENT = 2;
     public static final int MSG_UPDATE_ENTRY = 3;
     public static final int MSG_SET_STRING_VALUE = 4;
+    private static boolean isRunning = false;
     private final Messenger mMessenger = new Messenger(
             new IncomingMessageHandler());
     private NotificationManager mNotificationManager;
     private ExerciseEntry mEntry = null;
     private LocationManager locationManager = null;
     private Messenger mClient = null;
-
     private long mLatestTime = 0;
     private LatLng mLatestPosition = null;
-
+    private double curSpeed = 0;
     private final LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             updateWithNewLocation(location);
@@ -63,14 +65,20 @@ public class TrackingService extends Service {
         return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
+    public static boolean isRunning() {
+        return isRunning;
+    }
+
     @Override
     public void onCreate() {
+        Log.d("Fanzy", "TrackingService onCreate");
         super.onCreate();
-        showNotification();
         //initialize mEntry
         mEntry = new ExerciseEntry();
+        mEntry.setmDateTime(Calendar.getInstance());
         mEntry.setmDistance(0.0);
         mEntry.setmDuration(0);
+        mEntry.setmAvgSpeed(.0);
         mEntry.setmCalorie(0);
 
         mLatestTime = System.currentTimeMillis();
@@ -94,11 +102,15 @@ public class TrackingService extends Service {
 
         //start activity update
         updateWithNewLocation(l);
+
+        showNotification();
+        isRunning = true;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        isRunning = false;
         mNotificationManager.cancelAll();
         locationManager.removeUpdates(locationListener);
     }
@@ -114,13 +126,21 @@ public class TrackingService extends Service {
         return mMessenger.getBinder();
     }
 
+//    @Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//        Log.d("Fanzy", "Service:onStartCommand(): Received start id " + startId + ": "
+//                + intent);
+//        return START_STICKY; // Run until explicitly stopped.
+//    }
+
     /**
      * Display a notification in the notification bar.
      */
     private void showNotification() {
 
+        Intent intent = new Intent(this, MapDisplayActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MapDisplayActivity.class), 0);
+                intent, 0);
         Notification notification = new Notification.Builder(this)
                 .setContentTitle(this.getString(R.string.app_name))
                 .setContentText(
@@ -130,20 +150,16 @@ public class TrackingService extends Service {
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notification.flags = notification.flags
                 | Notification.FLAG_ONGOING_EVENT;
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
         mNotificationManager.notify(0, notification);
-
     }
 
     private void updateWithNewLocation(Location location) {
-
         Log.d("Fanzy", "Service: updateWithNewLocation");
 
         LatLng curPos = fromLocationToLatLng(location);
         long curTime = System.currentTimeMillis();
-        double curSpeed = 0;
-        Bundle bundle = new Bundle();
+
 
         if (mLatestPosition != null) {
             if (curTime - mLatestTime < 1000) {
@@ -154,16 +170,22 @@ public class TrackingService extends Service {
             mEntry.setmDistance(mEntry.getmDistance() + curDis);
             mEntry.setmDuration(mEntry.getmDuration() + (int) (curTime - mLatestTime) / 1000);
             mEntry.setmAvgSpeed(mEntry.getmDistance() * 3600 / mEntry.getmDuration());
+            mEntry.setmCalorie((int) (mEntry.getmDistance() / 15));
         }
         mEntry.appendLocationList(curPos);
         mEntry.setmClimb(location.getAltitude());
-        mEntry.setmCalorie(mEntry.getmDuration());
 
         mLatestPosition = curPos;
         mLatestTime = curTime;
+
+        sendMsg();
+    }
+
+    void sendMsg() {
         try {
             if (mClient != null) {
                 Message msg = Message.obtain(null, MSG_UPDATE_ENTRY);
+                Bundle bundle = new Bundle();
                 bundle.putDouble(MapDisplayActivity.CURSPEED, curSpeed);
                 bundle.putString(MapDisplayActivity.ENTRY, (new Gson()).toJson(mEntry));
                 msg.setData(bundle);
@@ -172,7 +194,6 @@ public class TrackingService extends Service {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -187,7 +208,12 @@ public class TrackingService extends Service {
             switch (msg.what) {
                 case MSG_REGISTER_CLIENT:
                     Log.d("Fanzy", "Service: RX MSG_REGISTER_CLIENT");
-                    mClient = msg.replyTo;
+                    if (mClient == null) {
+                        mClient = msg.replyTo;
+                        mEntry.setmInputType(msg.arg1);
+                        mEntry.setmActivityType(msg.arg2);
+                    }
+                    sendMsg();
                     break;
                 case MSG_UNREGISTER_CLIENT:
                     Log.d("Fanzy", "Service: RX MSG_UNREGISTER_CLIENT");
