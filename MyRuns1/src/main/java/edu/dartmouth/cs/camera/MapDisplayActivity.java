@@ -31,8 +31,6 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 
-import java.util.Calendar;
-
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
@@ -82,13 +80,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
             mEntry = new ExerciseEntry();
             mEntry.setmInputType(bundle.getInt(StartFragment.INPUT_TYPE, 0));
             mEntry.setmActivityType(bundle.getInt(StartFragment.ACTIVITY_TYPE, 0));
-            mEntry.setmDateTime(Calendar.getInstance());
-            mEntry.setmAvgSpeed(.0);
-            mEntry.setmClimb(.0);
-            mEntry.setmCalorie(0);
-            mEntry.setmDistance(.0);
-
-            bundle.getInt(StartFragment.INPUT_TYPE, 0);
             doBindService();
         } else {
             mEntry = (new Gson()).fromJson(bundle.getString(HistoryFragment.ENTRY), ExerciseEntry.class);
@@ -113,7 +104,10 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         Log.d("Fanzy", "UI: onMapReady");
         mMap = googleMap;
         mRoute = mMap.addPolyline(new PolylineOptions().width(5).color(Color.RED));
-        updateUI();
+        if (getIntent().getExtras().containsKey(HistoryFragment.ENTRY)) {
+            updateUI();
+        }
+
     }
 
     @Override
@@ -123,7 +117,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (getIntent().getExtras().containsKey(HistoryFragment.ENTRY)) {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.containsKey(HistoryFragment.ENTRY)) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.display_entry, menu);
         }
@@ -150,10 +145,12 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
         dbHelper.insertEntry(mEntry);
         dbHelper.close();
+//        stopService(new Intent(this, TrackingService.class));
         finish();
     }
 
     public void onCancelClicked(View v) {
+//        stopService(new Intent(this, TrackingService.class));
         finish();
     }
 
@@ -164,6 +161,10 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         try {
             Message msg = Message.obtain(null, TrackingService.MSG_REGISTER_CLIENT);
             msg.replyTo = mMessenger;
+            if (mEntry != null && mEntry.getmInputType() != null) {
+                msg.arg1 = mEntry.getmInputType();
+                msg.arg2 = mEntry.getmActivityType();
+            }
             Log.d("Fanzy", "UI: TX MSG_REGISTER_CLIENT");
             mServiceMessenger.send(msg);
         } catch (RemoteException e) {
@@ -178,9 +179,11 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     }
 
     private void doBindService() {
-        Log.d("Fanzy", "UI:doBindService()");
-        bindService(new Intent(this, TrackingService.class), this,
-                Context.BIND_AUTO_CREATE);
+        Log.d("Fanzy", "UI:MyService.isRunning: doBindService()");
+//        if (!TrackingService.isRunning()) {
+//            startService(new Intent(this, TrackingService.class));
+//        }
+        bindService(new Intent(this, TrackingService.class), this, Context.BIND_AUTO_CREATE);
     }
 
     private void doUnbindService() {
@@ -229,12 +232,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
             }
 
         }
-
-//            if (whereAmI != null)
-//                whereAmI.remove();
-//
-//            whereAmI = mMap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(
-//                    BitmapDescriptorFactory.HUE_GREEN)).title("Here I Am."));
     }
 
     private class IncomingMessageHandler extends Handler {
@@ -245,14 +242,10 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
                 case TrackingService.MSG_UPDATE_ENTRY:
                     Bundle bundle = msg.getData();
                     mSpeed = bundle.getDouble(CURSPEED);
-                    ExerciseEntry entryTmp = (new Gson()).fromJson(bundle.getString(ENTRY), ExerciseEntry.class);
-                    mEntry.setmAvgSpeed(entryTmp.getmAvgSpeed());
-                    mEntry.setmClimb(entryTmp.getmClimb());
-                    mEntry.setmCalorie(entryTmp.getmCalorie());
-                    mEntry.setmDistance(entryTmp.getmDistance());
-                    mEntry.setmLocationList(entryTmp.getmLocationList());
-                    mEntry.setmDuration(entryTmp.getmDuration());
-                    updateUI();
+                    mEntry = (new Gson()).fromJson(bundle.getString(ENTRY), ExerciseEntry.class);
+                    if (mMap != null) {
+                        updateUI();
+                    }
                     break;
                 default:
                     super.handleMessage(msg);

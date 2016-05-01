@@ -97,7 +97,9 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
         getListView().setOnItemClickListener(listViewListener);
         getLoaderManager().initLoader(0, null, this);
+
     }
+
 
     @Override
     public Loader<List<ExerciseEntry>> onCreateLoader(int i, Bundle bundle) {
