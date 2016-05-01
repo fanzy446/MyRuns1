@@ -163,6 +163,8 @@ public class TrackingService extends Service {
             mEntry.setmDuration(mEntry.getmDuration() + (int) (curTime - mLatestTime) / 1000);
             mEntry.setmAvgSpeed(mEntry.getmDistance() * 3600 / mEntry.getmDuration());
             mEntry.setmCalorie((int) (mEntry.getmDistance() / 15));
+            Intent intent = new Intent("test");
+            sendBroadcast(intent);
         }
         mEntry.appendLocationList(curPos);
         mEntry.setmClimb(location.getAltitude());

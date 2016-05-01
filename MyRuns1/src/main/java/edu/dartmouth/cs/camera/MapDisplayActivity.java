@@ -151,6 +151,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         Log.d("Fanzy", (new Gson()).toJson(mEntry));
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
         dbHelper.insertEntry(mEntry);
+        long entryNo = dbHelper.insertEntry(mEntry);
+        Toast.makeText(MapDisplayActivity.this, "Entry #" + entryNo + " saved.", Toast.LENGTH_SHORT).show();
         dbHelper.close();
         finish();
     }
