@@ -28,12 +28,12 @@ public class DistanceUnitHelper {
         }
         if (withUnit) {
             if (unitItems.equals("Metric")) {
-                return numberFormat.format(dis) + " Kilometers";//String.format("%.2f Kilometers", dis);
+                return numberFormat.format(dis) + " Kilometers";
             } else {
-                return numberFormat.format(dis) + " Miles";// String.format("%.2f Miles", dis);
+                return numberFormat.format(dis) + " Miles";
             }
         }
-        return numberFormat.format(dis) + "";// String.format("%.2f", dis);
+        return numberFormat.format(dis) + "";
     }
 
     /**
@@ -56,11 +56,11 @@ public class DistanceUnitHelper {
         }
         if (withUnit) {
             if (unitItems.equals("Metric")) {
-                return numberFormat.format(speed) + " km/h";//String.format("%.2f Kilometers", dis);
+                return numberFormat.format(speed) + " km/h";
             } else {
-                return numberFormat.format(speed) + " m/h";// String.format("%.2f Miles", dis);
+                return numberFormat.format(speed) + " m/h";
             }
         }
-        return numberFormat.format(speed) + "";// String.format("%.2f", dis);
+        return numberFormat.format(speed) + "";
     }
 }

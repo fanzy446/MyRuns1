@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
@@ -17,7 +16,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,11 +29,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
+import edu.dartmouth.cs.camera.database.ExerciseEntryAsyncTask;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
@@ -62,8 +57,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     private double mSpeed = 0;
     private boolean mBounded = false;
-
-    private AddExerciseEntryTask task = null;
 
     // the broadcast receiver upon the update of mEntry in the service
     private BroadcastReceiver onLocationReceived = new BroadcastReceiver() {
@@ -153,12 +146,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     // recall function when save button is pressed
     public void onSaveClicked(View v) {
-        task = new AddExerciseEntryTask();
-        task.execute();
-        ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
-//        long entryNo = dbHelper.insertEntry(mEntry);
-//        Toast.makeText(MapDisplayActivity.this, "Entry #" + entryNo + " saved.", Toast.LENGTH_SHORT).show();
-        dbHelper.close();
+        ExerciseEntryAsyncTask task = new ExerciseEntryAsyncTask(this);
+        task.execute(mEntry);
         finish();
     }
 
@@ -183,38 +172,14 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     }
 
     private void doBindService() {
+        startService(new Intent(this, TrackingService.class));
         bindService(new Intent(this, TrackingService.class), this, Context.BIND_AUTO_CREATE);
     }
 
     private void doUnbindService() {
         if (mService != null) {
             unbindService(this);
-        }
-    }
-
-    class AddExerciseEntryTask extends AsyncTask<Void, String, Void> {
-
-        // Params
-        @Override
-        protected Void doInBackground(Void... unused) {
-            mEntry = mService.getmEntry();
-            mEntry.setmInputType(getIntent().getExtras().getInt(StartFragment.INPUT_TYPE, 0));
-            mEntry.setmActivityType(getIntent().getExtras().getInt(StartFragment.ACTIVITY_TYPE, 0));
-            // mEntry.setmDateTime(Calendar.getInstance());
-            mEntry.setmDuration((int)((System.currentTimeMillis() - 0)/ 1000));
-            return null;
-        }
-
-        // Progress
-        @Override
-        protected void onProgressUpdate(String... name) {
-            Toast.makeText(MapDisplayActivity.this, "Entry #" + name[0] + " saved", Toast.LENGTH_SHORT).show();
-        }
-
-        // Result
-        @Override
-        protected void onPostExecute(Void unused) {
-            task = null;
+            stopService(new Intent(this, TrackingService.class));
         }
     }
 
