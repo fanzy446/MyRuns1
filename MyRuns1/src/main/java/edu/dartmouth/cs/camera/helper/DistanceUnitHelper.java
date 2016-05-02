@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -14,12 +12,12 @@ import edu.dartmouth.cs.camera.R;
 public class DistanceUnitHelper {
 
     /**
-     * convert distance to String in UI
+     * convert distance to String for display
      *
      * @param context  context
      * @param dis      distance
      * @param withUnit whether the string contains unit in the end or not
-     * @return the String in UI
+     * @return the String for display
      */
     public static String distanceToString(Context context, double dis, boolean withUnit) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -38,6 +36,14 @@ public class DistanceUnitHelper {
         return numberFormat.format(dis) + "";// String.format("%.2f", dis);
     }
 
+    /**
+     * convert speed to String for display
+     *
+     * @param context  context
+     * @param speed    speed
+     * @param withUnit whether the string contains unit in the end or not
+     * @return the String for display
+     */
     public static String speedToString(Context context, double speed, boolean withUnit) {
         if (speed == 0) {
             return "n/a";
@@ -56,15 +62,5 @@ public class DistanceUnitHelper {
             }
         }
         return numberFormat.format(speed) + "";// String.format("%.2f", dis);
-    }
-
-    public static double distance(LatLng p1, LatLng p2) {
-        final double R = 3959;
-        double dlon = p2.longitude - p1.longitude;
-        double dlat = p2.latitude - p1.latitude;
-        double a = Math.pow((Math.sin(dlat / 2)), 2) + Math.cos(p1.latitude) * Math.cos(p2.latitude) * Math.pow((Math.sin(dlon / 2)), 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double d = R * c;
-        return d;
     }
 }

@@ -23,6 +23,18 @@ public class ExerciseEntry {
     private Integer mPrivacy;          // Privacy
     private ArrayList<LatLng> mLocationList = new ArrayList<>(); // Location list
 
+    public void init() {
+        mDateTime = Calendar.getInstance();
+        mDuration = 0;
+        mDistance = .0;
+        mAvgPace = .0;
+        mAvgSpeed = .0;
+        mCalorie = 0;
+        mClimb = .0;
+        mHeartRate = 0;
+        mPrivacy = 0;
+    }
+
     public Long getId() {
         return id;
     }
