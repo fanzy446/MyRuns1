@@ -14,7 +14,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -32,6 +31,7 @@ public class TrackingService extends Service {
     private LocationManager locationManager = null;
     private long mStartTime = 0;
     private long mLatestTime = 0;
+    private double mStartClimb = 0;
     private Location mLatestPosition = null;
     private double curSpeed = 0;
 
@@ -73,7 +73,6 @@ public class TrackingService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d("Fanzy", "TrackingService onCreate");
         super.onCreate();
         //initialize mEntry
         mEntry = new ExerciseEntry();
@@ -118,7 +117,6 @@ public class TrackingService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("Fanzy", "Service:onBind() - return mMessenger.getBinder()");
         return mBinder;
     }
 
@@ -149,8 +147,6 @@ public class TrackingService extends Service {
      * @param location new location
      */
     private void updateWithNewLocation(Location location) {
-        Log.d("Fanzy", "Service: updateWithNewLocation");
-
         long curTime = System.currentTimeMillis();
 
         if (mLatestPosition != null) {
@@ -163,11 +159,12 @@ public class TrackingService extends Service {
             mEntry.setmDuration((int) (curTime - mStartTime) / 1000);
             mEntry.setmAvgSpeed(mEntry.getmDistance() * 3600 / mEntry.getmDuration());
             mEntry.setmCalorie((int) (mEntry.getmDistance() * 1000 / 15));
+            mEntry.setmClimb(location.getAltitude() / 1000 / 1.6 - mStartClimb);
         } else {
             mStartTime = curTime;
+            mStartClimb = location.getAltitude() / 1000 / 1.6;
         }
         mEntry.appendLocationList(fromLocationToLatLng(location));
-        mEntry.setmClimb(location.getAltitude());
 
         mLatestPosition = location;
         mLatestTime = curTime;

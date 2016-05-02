@@ -11,13 +11,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -63,8 +61,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private BroadcastReceiver onLocationReceived = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent i) {
-            Log.d("Fanzy", getClass().getName() + ": new location available");
-            Toast.makeText(MapDisplayActivity.this, "New location available!", Toast.LENGTH_LONG).show();
             if (mBounded) {
                 mEntry = mService.getmEntry();
                 mSpeed = mService.getCurSpeed();
@@ -76,7 +72,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Fanzy", "UI: onCreate");
         setContentView(R.layout.activity_map_display);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -109,7 +104,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.d("Fanzy", "UI: onMapReady");
         mMap = googleMap;
         mRoute = mMap.addPolyline(new PolylineOptions().width(5).color(Color.RED));
         if (getIntent().getExtras().containsKey(HistoryFragment.ENTRY)) {
@@ -151,7 +145,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     // recall function when save button is pressed
     public void onSaveClicked(View v) {
-        Log.d("Fanzy", (new Gson()).toJson(mEntry));
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
         dbHelper.insertEntry(mEntry);
         dbHelper.close();
@@ -165,7 +158,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.d("Fanzy", "UI:onServiceConnected()");
         mService = ((TrackingService.TrackingBinder) service).getService();
         while (!TrackingService.isRunning()) {
         }
@@ -180,12 +172,10 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     }
 
     private void doBindService() {
-        Log.d("Fanzy", "UI:MyService.isRunning: doBindService()");
         bindService(new Intent(this, TrackingService.class), this, Context.BIND_AUTO_CREATE);
     }
 
     private void doUnbindService() {
-        Log.d("Fanzy", "UI:doUnBindService()");
         if (mService != null) {
             unbindService(this);
         }
@@ -195,11 +185,10 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
      * update the UI
      */
     private void updateUI() {
-        Log.d("Fanzy", "Update UI...");
         mTypeText.setText(String.format("Type: %s", getResources().getStringArray(R.array.spinner_activity_type)[mEntry.getmActivityType()]));
         mAvgspeedText.setText(String.format("Avg speed: %s", DistanceUnitHelper.speedToString(this, mEntry.getmAvgSpeed(), true)));
         mCurspeedText.setText(String.format("Cur speed: %s", DistanceUnitHelper.speedToString(this, mSpeed, true)));
-        mClimbText.setText(String.format("Climb: %s", DistanceUnitHelper.distanceToString(this, mEntry.getmDistance(), true)));
+        mClimbText.setText(String.format("Climb: %s", DistanceUnitHelper.distanceToString(this, mEntry.getmClimb(), true)));
         mCalorieText.setText(String.format("Calorie: %d", mEntry.getmCalorie()));
         mDistanceText.setText(String.format("Distance: %s", DistanceUnitHelper.distanceToString(this, mEntry.getmDistance(), true)));
 
