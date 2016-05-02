@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
@@ -16,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -56,6 +58,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     private double mSpeed = 0;
     private boolean mBounded = false;
+
+    private AddExerciseEntryTask task = null;
 
     // the broadcast receiver upon the update of mEntry in the service
     private BroadcastReceiver onLocationReceived = new BroadcastReceiver() {
@@ -179,6 +183,24 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private void doUnbindService() {
         if (mService != null) {
             unbindService(this);
+        }
+    }
+
+    class AddExerciseEntryTask extends AsyncTask<Void, String, Void> {
+        @Override
+        protected Void doInBackground(Void... unused) {
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... name) {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            task = null;
         }
     }
 

@@ -170,6 +170,12 @@ public class TrackingService extends Service {
         mLatestTime = curTime;
     }
 
+    // stop service when kill the app
+    @Override
+    public void onTaskRemoved(Intent intent) {
+        stopSelf();
+    }
+
     /**
      * notify UI that mEntry is updated
      */
