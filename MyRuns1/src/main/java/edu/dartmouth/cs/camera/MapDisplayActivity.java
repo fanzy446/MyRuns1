@@ -146,7 +146,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     // recall function when save button is pressed
     public void onSaveClicked(View v) {
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
-        dbHelper.insertEntry(mEntry);
+        long entryNo = dbHelper.insertEntry(mEntry);
+        Toast.makeText(MapDisplayActivity.this, "Entry #" + entryNo + " saved.", Toast.LENGTH_SHORT).show();
         dbHelper.close();
         finish();
     }
