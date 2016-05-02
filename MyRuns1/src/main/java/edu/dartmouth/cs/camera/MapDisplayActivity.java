@@ -31,6 +31,10 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
@@ -149,9 +153,11 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     // recall function when save button is pressed
     public void onSaveClicked(View v) {
+        task = new AddExerciseEntryTask();
+        task.execute();
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
-        long entryNo = dbHelper.insertEntry(mEntry);
-        Toast.makeText(MapDisplayActivity.this, "Entry #" + entryNo + " saved.", Toast.LENGTH_SHORT).show();
+//        long entryNo = dbHelper.insertEntry(mEntry);
+//        Toast.makeText(MapDisplayActivity.this, "Entry #" + entryNo + " saved.", Toast.LENGTH_SHORT).show();
         dbHelper.close();
         finish();
     }
@@ -187,17 +193,25 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     }
 
     class AddExerciseEntryTask extends AsyncTask<Void, String, Void> {
+
+        // Params
         @Override
         protected Void doInBackground(Void... unused) {
-
+            mEntry = mService.getmEntry();
+            mEntry.setmInputType(getIntent().getExtras().getInt(StartFragment.INPUT_TYPE, 0));
+            mEntry.setmActivityType(getIntent().getExtras().getInt(StartFragment.ACTIVITY_TYPE, 0));
+            // mEntry.setmDateTime(Calendar.getInstance());
+            mEntry.setmDuration((int)((System.currentTimeMillis() - 0)/ 1000));
             return null;
         }
 
+        // Progress
         @Override
         protected void onProgressUpdate(String... name) {
-
+            Toast.makeText(MapDisplayActivity.this, "Entry #" + name[0] + " saved", Toast.LENGTH_SHORT).show();
         }
 
+        // Result
         @Override
         protected void onPostExecute(Void unused) {
             task = null;
