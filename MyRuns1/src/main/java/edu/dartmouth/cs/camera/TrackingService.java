@@ -13,23 +13,16 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Messenger;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.Calendar;
-
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
-import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
 public class TrackingService extends Service {
 
     public static final String LOCATION_UPDATE = "location_update";
-    public static final int MSG_REGISTER_CLIENT = 1;
-    public static final int MSG_UNREGISTER_CLIENT = 2;
-    public static final int MSG_UPDATE_ENTRY = 3;
 
     private static boolean isRunning = false;
     private final IBinder mBinder = new TrackingBinder();
@@ -37,11 +30,12 @@ public class TrackingService extends Service {
     private NotificationManager mNotificationManager;
     private ExerciseEntry mEntry = null;
     private LocationManager locationManager = null;
-    private Messenger mClient = null;
+    private long mStartTime = 0;
     private long mLatestTime = 0;
-    private LatLng mLatestPosition = null;
+    private Location mLatestPosition = null;
     private double curSpeed = 0;
 
+    //location listener
     private final LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             updateWithNewLocation(location);
@@ -62,10 +56,17 @@ public class TrackingService extends Service {
     public TrackingService() {
     }
 
+    /**
+     * transform Location to LatLng
+     *
+     * @param location location
+     * @return LatLng
+     */
     public static LatLng fromLocationToLatLng(Location location) {
         return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
+    // Is the service running?
     public static boolean isRunning() {
         return isRunning;
     }
@@ -76,11 +77,7 @@ public class TrackingService extends Service {
         super.onCreate();
         //initialize mEntry
         mEntry = new ExerciseEntry();
-        mEntry.setmDateTime(Calendar.getInstance());
-        mEntry.setmDistance(0.0);
-        mEntry.setmDuration(0);
-        mEntry.setmAvgSpeed(.0);
-        mEntry.setmCalorie(0);
+        mEntry.init();
 
         mLatestTime = System.currentTimeMillis();
 
@@ -146,31 +143,39 @@ public class TrackingService extends Service {
         mNotificationManager.notify(0, notification);
     }
 
+    /**
+     * Update mEntry when new location is available
+     *
+     * @param location new location
+     */
     private void updateWithNewLocation(Location location) {
         Log.d("Fanzy", "Service: updateWithNewLocation");
 
-        LatLng curPos = fromLocationToLatLng(location);
         long curTime = System.currentTimeMillis();
-
 
         if (mLatestPosition != null) {
             if (curTime - mLatestTime < 1000) {
                 return;
             }
-            double curDis = DistanceUnitHelper.distance(curPos, mLatestPosition);
+            double curDis = location.distanceTo(mLatestPosition) / 1.6 / 1000;
             curSpeed = curDis * 3600 * 1000 / (double) (curTime - mLatestTime);
             mEntry.setmDistance(mEntry.getmDistance() + curDis);
-            mEntry.setmDuration(mEntry.getmDuration() + (int) (curTime - mLatestTime) / 1000);
+            mEntry.setmDuration((int) (curTime - mStartTime) / 1000);
             mEntry.setmAvgSpeed(mEntry.getmDistance() * 3600 / mEntry.getmDuration());
-            mEntry.setmCalorie((int) (mEntry.getmDistance() / 15));
+            mEntry.setmCalorie((int) (mEntry.getmDistance() * 1000 / 15));
+        } else {
+            mStartTime = curTime;
         }
-        mEntry.appendLocationList(curPos);
+        mEntry.appendLocationList(fromLocationToLatLng(location));
         mEntry.setmClimb(location.getAltitude());
 
-        mLatestPosition = curPos;
+        mLatestPosition = location;
         mLatestTime = curTime;
     }
 
+    /**
+     * notify UI that mEntry is updated
+     */
     void sendMsg() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(LOCATION_UPDATE));
     }
@@ -179,6 +184,12 @@ public class TrackingService extends Service {
         return mEntry;
     }
 
+    /**
+     * initialize the entry with inputType and activityType
+     *
+     * @param inputType    inputType
+     * @param activityType inputType
+     */
     public void initializeEntry(int inputType, int activityType) {
         mEntry.setmInputType(inputType);
         mEntry.setmActivityType(activityType);

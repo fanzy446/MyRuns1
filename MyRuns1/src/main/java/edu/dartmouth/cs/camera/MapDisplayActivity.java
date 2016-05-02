@@ -59,6 +59,7 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private double mSpeed = 0;
     private boolean mBounded = false;
 
+    // the broadcast receiver upon the update of mEntry in the service
     private BroadcastReceiver onLocationReceived = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent i) {
@@ -97,6 +98,7 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
             mEntry = new ExerciseEntry();
             mEntry.setmInputType(bundle.getInt(StartFragment.INPUT_TYPE, 0));
             mEntry.setmActivityType(bundle.getInt(StartFragment.ACTIVITY_TYPE, 0));
+            mEntry.init();
             doBindService();
         } else {
             mEntry = (new Gson()).fromJson(bundle.getString(HistoryFragment.ENTRY), ExerciseEntry.class);
@@ -147,6 +149,7 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         }
     }
 
+    // recall function when save button is pressed
     public void onSaveClicked(View v) {
         Log.d("Fanzy", (new Gson()).toJson(mEntry));
         ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
@@ -155,6 +158,7 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         finish();
     }
 
+    // recall function when cancel button is pressed
     public void onCancelClicked(View v) {
         finish();
     }
@@ -163,6 +167,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.d("Fanzy", "UI:onServiceConnected()");
         mService = ((TrackingService.TrackingBinder) service).getService();
+        while (!TrackingService.isRunning()) {
+        }
         mService.initializeEntry(mEntry.getmInputType(), mEntry.getmActivityType());
         mBounded = true;
     }
@@ -185,9 +191,12 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         }
     }
 
+    /**
+     * update the UI
+     */
     private void updateUI() {
         Log.d("Fanzy", "Update UI...");
-        mTypeText.setText(String.format("Type: %s", getResources().getStringArray(R.array.spinner_input_type)[mEntry.getmInputType()]));
+        mTypeText.setText(String.format("Type: %s", getResources().getStringArray(R.array.spinner_activity_type)[mEntry.getmActivityType()]));
         mAvgspeedText.setText(String.format("Avg speed: %s", DistanceUnitHelper.speedToString(this, mEntry.getmAvgSpeed(), true)));
         mCurspeedText.setText(String.format("Cur speed: %s", DistanceUnitHelper.speedToString(this, mSpeed, true)));
         mClimbText.setText(String.format("Climb: %s", DistanceUnitHelper.distanceToString(this, mEntry.getmDistance(), true)));
