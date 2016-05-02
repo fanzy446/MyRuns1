@@ -120,14 +120,6 @@ public class TrackingService extends Service {
         return mBinder;
     }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-        mNotificationManager.cancelAll();
-        locationManager.removeUpdates(locationListener);
-        stopSelf();
-    }
-
     /**
      * Display a notification in the notification bar.
      */
