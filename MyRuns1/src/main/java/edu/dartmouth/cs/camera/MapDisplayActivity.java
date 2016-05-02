@@ -171,11 +171,17 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         mBounded = false;
     }
 
+    /**
+     * start and bind service
+     */
     private void doBindService() {
         startService(new Intent(this, TrackingService.class));
         bindService(new Intent(this, TrackingService.class), this, Context.BIND_AUTO_CREATE);
     }
 
+    /**
+     * unbind and stop service
+     */
     private void doUnbindService() {
         if (mService != null) {
             unbindService(this);
