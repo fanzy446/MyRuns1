@@ -17,11 +17,10 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
-import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
+import edu.dartmouth.cs.camera.database.ExerciseEntryAsyncTask;
 
 public class ListviewActivity extends Activity {
 
-    Calendar mDateAndTime = Calendar.getInstance();
     private ExerciseEntry mEntry = new ExerciseEntry();
     private ArrayAdapter<String> mAdapter;
     private ListView listView;
@@ -36,6 +35,7 @@ public class ListviewActivity extends Activity {
             mEntry.setmInputType(getIntent().getExtras().getInt(StartFragment.INPUT_TYPE));
             mEntry.setmActivityType(getIntent().getExtras().getInt(StartFragment.ACTIVITY_TYPE));
         }
+        mEntry.setmDateTime(Calendar.getInstance());
 
         listView = (ListView) findViewById(R.id.list_view);
         String[] mItems = new String[]{"Data", "Time", "Duration", "Distance", "Calories", "Heart Rate", "Comment"};
@@ -55,30 +55,30 @@ public class ListviewActivity extends Activity {
                     case 2:
                         Integer duration = mEntry.getmDuration();
                         EditDialogFragment edFragment1 = EditDialogFragment.newInstance(getString(R.string.ui_listview_duration_title),
-                                duration == null ? null : (duration + ""), null, InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                                null, null, InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                         edFragment1.show(getFragmentManager(), getString(R.string.ui_listview_duration_title));
                         break;
                     case 3:
                         Double distance = mEntry.getmDistance();
                         EditDialogFragment edFragment2 = EditDialogFragment.newInstance(getString(R.string.ui_listview_distance_title),
-                                distance == null ? null : (distance + ""), null, InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                                null, null, InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                         edFragment2.show(getFragmentManager(), getString(R.string.ui_listview_distance_title));
                         break;
                     case 4:
                         Integer calorie = mEntry.getmCalorie();
                         EditDialogFragment edFragment3 = EditDialogFragment.newInstance(getString(R.string.ui_listview_calory_title),
-                                calorie == null ? null : (calorie + ""), null, InputType.TYPE_CLASS_NUMBER);
+                                null, null, InputType.TYPE_CLASS_NUMBER);
                         edFragment3.show(getFragmentManager(), getString(R.string.ui_listview_calory_title));
                         break;
                     case 5:
                         Integer heartRate = mEntry.getmHeartRate();
                         EditDialogFragment edFragment4 = EditDialogFragment.newInstance(getString(R.string.ui_listview_heartrate_title),
-                                heartRate == null ? null : (heartRate + ""), null, InputType.TYPE_CLASS_NUMBER);
+                                null, null, InputType.TYPE_CLASS_NUMBER);
                         edFragment4.show(getFragmentManager(), getString(R.string.ui_listview_heartrate_title));
                         break;
                     case 6:
                         EditDialogFragment edFragment5 = EditDialogFragment.newInstance(getString(R.string.ui_listview_comment_title),
-                                mEntry.getmComment(), getString(R.string.ui_listview_comment_summary), InputType.TYPE_CLASS_TEXT);
+                                null, getString(R.string.ui_listview_comment_summary), InputType.TYPE_CLASS_TEXT);
                         edFragment5.show(getFragmentManager(), getString(R.string.ui_listview_comment_title));
                         break;
                 }
@@ -95,16 +95,16 @@ public class ListviewActivity extends Activity {
         DatePickerDialog.OnDateSetListener mDateListener = new DatePickerDialog.OnDateSetListener() {
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                mDateAndTime.set(Calendar.YEAR, year);
-                mDateAndTime.set(Calendar.MONTH, monthOfYear);
-                mDateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                mEntry.getmDateTime().set(Calendar.YEAR, year);
+                mEntry.getmDateTime().set(Calendar.MONTH, monthOfYear);
+                mEntry.getmDateTime().set(Calendar.DAY_OF_MONTH, dayOfMonth);
             }
         };
 
         new DatePickerDialog(ListviewActivity.this, mDateListener,
-                mDateAndTime.get(Calendar.YEAR),
-                mDateAndTime.get(Calendar.MONTH),
-                mDateAndTime.get(Calendar.DAY_OF_MONTH)).show();
+                mEntry.getmDateTime().get(Calendar.YEAR),
+                mEntry.getmDateTime().get(Calendar.MONTH),
+                mEntry.getmDateTime().get(Calendar.DAY_OF_MONTH)).show();
 
     }
 
@@ -112,22 +112,19 @@ public class ListviewActivity extends Activity {
     public void onTimeClicked(View v) {
         TimePickerDialog.OnTimeSetListener mTimeListener = new TimePickerDialog.OnTimeSetListener() {
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                mDateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                mDateAndTime.set(Calendar.MINUTE, minute);
+                mEntry.getmDateTime().set(Calendar.HOUR_OF_DAY, hourOfDay);
+                mEntry.getmDateTime().set(Calendar.MINUTE, minute);
             }
         };
 
-        new TimePickerDialog(ListviewActivity.this, mTimeListener, mDateAndTime.get(Calendar.HOUR_OF_DAY), mDateAndTime.get(Calendar.MINUTE), true).show();
+        new TimePickerDialog(ListviewActivity.this, mTimeListener, mEntry.getmDateTime().get(Calendar.HOUR_OF_DAY), mEntry.getmDateTime().get(Calendar.MINUTE), true).show();
 
     }
 
     // the recall function of the SAVE button
     public void onListviewSaveClicked(View v) {
-        ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(this);
-        mEntry.setmDateTime(mDateAndTime);
-        long entryNo = dbHelper.insertEntry(mEntry);
-        dbHelper.close();
-        Toast.makeText(ListviewActivity.this, "Entry #" + entryNo + " saved.", Toast.LENGTH_SHORT).show();
+        ExerciseEntryAsyncTask task = new ExerciseEntryAsyncTask(this);
+        task.execute(mEntry);
         finish();
     }
 
