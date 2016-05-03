@@ -42,6 +42,7 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     private TrackingService mService = null;
     private LocalBroadcastManager bm = null;
+    private LocalBroadcastManager bm2 = null;
 
     private ExerciseEntry mEntry = null;
     private TextView mTypeText = null;
@@ -70,6 +71,24 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         }
     };
 
+    private BroadcastReceiver onClassificationReceived = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            double mType = intent.getDoubleExtra("", 0);
+            if(mType == 0.0) {
+                mTypeText.setText("Type: Standing");
+            }
+            else if(mType == 1.0) {
+                mTypeText.setText("Type: Walking");
+            }
+            else if(mType == 2.0) {
+                mTypeText.setText("Type: Running");
+            } else {
+                mTypeText.setText("Others");
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +107,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
         bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(onLocationReceived, new IntentFilter(TrackingService.LOCATION_UPDATE));
+        bm2 = LocalBroadcastManager.getInstance(this);
+        bm2.registerReceiver(onClassificationReceived, new IntentFilter((TrackingService.TYPE_CLASSIFY)));
 
         Bundle bundle = getIntent().getExtras();
         if (!bundle.containsKey(HistoryFragment.ENTRY)) {
@@ -95,6 +116,7 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
             mEntry.setmInputType(bundle.getInt(StartFragment.INPUT_TYPE, 0));
             mEntry.setmActivityType(bundle.getInt(StartFragment.ACTIVITY_TYPE, 0));
             mEntry.init();
+            startService(new Intent(this, TrackingService.class));
             doBindService();
         } else {
             mEntry = (new Gson()).fromJson(bundle.getString(HistoryFragment.ENTRY), ExerciseEntry.class);
@@ -117,7 +139,9 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     protected void onDestroy() {
         super.onDestroy();
         doUnbindService();
+        stopService(new Intent(this, TrackingService.class));
         bm.unregisterReceiver(onLocationReceived);
+        bm2.unregisterReceiver(onClassificationReceived);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

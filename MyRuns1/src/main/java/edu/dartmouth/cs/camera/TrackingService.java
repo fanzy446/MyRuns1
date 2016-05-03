@@ -6,6 +6,10 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -19,9 +23,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 import edu.dartmouth.cs.camera.database.ExerciseEntry;
 
-public class TrackingService extends Service {
+public class TrackingService extends Service implements SensorEventListener {
 
     public static final String LOCATION_UPDATE = "location_update";
+    public static final String TYPE_CLASSIFY = "type_classify";
 
     private static boolean isRunning = false;
     private final IBinder mBinder = new TrackingBinder();
@@ -29,6 +34,7 @@ public class TrackingService extends Service {
     private NotificationManager mNotificationManager;
     private ExerciseEntry mEntry = null;
     private LocationManager locationManager = null;
+    private SensorManager sensorManager;
     private long mStartTime = 0;
     private long mLatestTime = 0;
     private double mStartClimb = 0;
@@ -96,6 +102,10 @@ public class TrackingService extends Service {
         Location l = locationManager.getLastKnownLocation(provider);
         locationManager.requestLocationUpdates(provider, 1000, 5,
                 locationListener);
+
+        // sensorManager
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
 
         //start activity update
         if (l != null) {
@@ -205,5 +215,18 @@ public class TrackingService extends Service {
             // Return this instance of DownloadBinder so clients can call public methods
             return TrackingService.this;
         }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            double x = event.values[0];
+            double y = event.values[1];
+            double z = event.values[2];
+        }
+
     }
 }
