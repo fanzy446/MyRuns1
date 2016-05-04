@@ -210,7 +210,7 @@ public class TrackingService extends Service implements SensorEventListener {
     }
 
     void sendMsg2(Intent intent) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(TYPE_CLASSIFY));
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public ExerciseEntry getmEntry() {
