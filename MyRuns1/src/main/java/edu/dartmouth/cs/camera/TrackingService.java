@@ -54,6 +54,11 @@ public class TrackingService extends Service implements SensorEventListener {
     private List<Double> featureVector;
     private TypeClassificationTask mTypeClassificationTask;
 
+    private int mStandingLabel = 0;
+    private int mWalkingLabel = 0;
+    private int mRunningLabel = 0;
+    private int mOthersLabel = 0;
+
     //location listener
     private final LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -204,7 +209,7 @@ public class TrackingService extends Service implements SensorEventListener {
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(LOCATION_UPDATE));
     }
 
-    void sendMsg2() {
+    void sendMsg2(Intent intent) {
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(TYPE_CLASSIFY));
     }
 
@@ -274,6 +279,7 @@ public class TrackingService extends Service implements SensorEventListener {
             double max = Double.MIN_VALUE;
 
             while(true) {
+                // check if the AsyncTask is cancelled or not in the while loop
                 try {
                     if(isCancelled() == true) {
                         return null;
@@ -296,20 +302,39 @@ public class TrackingService extends Service implements SensorEventListener {
 
                         for(int i = 0; i< re.length; i++) {
                             double mag = Math.sqrt(re[i] * re[i] + im[i] * im[i]);
-                            featureVector.add(new Double(mag));
+                            featureVector.add(mag);
                             im[i] = .0;
                         }
 
-                        featureVector.add(new Double(max));
+                        featureVector.add(max);
 
-                        WekaClassifier.classify(featureVector.toArray());
+                        // current activity label
+                        double label = WekaClassifier.classify(featureVector.toArray());
 
-                        sendMsg2();
+                        if(label == 0.0) mStandingLabel++;
+                        else if(label == 1.0) mWalkingLabel++;
+                        else if(label == 2.0) mRunningLabel++;
+                        else mOthersLabel++;
+
+                        featureVector.clear();
+
+                        Intent intent = new Intent(TYPE_CLASSIFY);
+                        intent.putExtra("classified_label", label);
+                        sendMsg2(intent);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    // the activity with the most labels become the overall label
+    public String findOverallLabel() {
+        int max = Math.max(Math.max(mStandingLabel, mWalkingLabel), Math.max(mRunningLabel, mOthersLabel));
+        if(max == mStandingLabel) return "Standing";
+        else if(max == mWalkingLabel) return "Walking";
+        else if(max == mRunningLabel) return "Running";
+        else return "Others";
     }
 }

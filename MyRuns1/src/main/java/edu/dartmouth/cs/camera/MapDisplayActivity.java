@@ -59,6 +59,9 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private double mSpeed = 0;
     private boolean mBounded = false;
 
+    // check if it is Automatic, if it is, should get the activity type
+    private boolean isAutomatic = false;
+
     // the broadcast receiver upon the update of mEntry in the service
     private BroadcastReceiver onLocationReceived = new BroadcastReceiver() {
         @Override
@@ -74,18 +77,11 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private BroadcastReceiver onClassificationReceived = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            double mType = intent.getDoubleExtra("", 0);
-            if(mType == 0.0) {
-                mTypeText.setText("Type: Standing");
-            }
-            else if(mType == 1.0) {
-                mTypeText.setText("Type: Walking");
-            }
-            else if(mType == 2.0) {
-                mTypeText.setText("Type: Running");
-            } else {
-                mTypeText.setText("Others");
-            }
+            double mType = intent.getDoubleExtra("classified_label", 0);
+            if(mType == 0.0) mTypeText.setText("Type: Standing");
+            else if(mType == 1.0) mTypeText.setText("Type: Walking");
+            else if(mType == 2.0) mTypeText.setText("Type: Running");
+            else mTypeText.setText("Others");
         }
     };
 
