@@ -6,10 +6,15 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,11 +22,17 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import edu.dartmouth.cs.camera.database.ExerciseEntry;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
-public class TrackingService extends Service {
+import edu.dartmouth.cs.camera.database.ExerciseEntry;
+import edu.dartmouth.cs.camera.helper.FFT;
+
+public class TrackingService extends Service implements SensorEventListener {
 
     public static final String LOCATION_UPDATE = "location_update";
+    public static final String TYPE_CLASSIFY = "type_classify";
 
     private static boolean isRunning = false;
     private final IBinder mBinder = new TrackingBinder();
@@ -29,11 +40,19 @@ public class TrackingService extends Service {
     private NotificationManager mNotificationManager;
     private ExerciseEntry mEntry = null;
     private LocationManager locationManager = null;
+    private SensorManager sensorManager;
     private long mStartTime = 0;
     private long mLatestTime = 0;
     private double mStartClimb = 0;
     private Location mLatestPosition = null;
     private double curSpeed = 0;
+
+    public static final int ACCELEROMETER_BUFFER_CAPACITY = 2048;
+    public static final int ACCELEROMETER_BLOCK_CAPACITY = 64;
+
+    private static ArrayBlockingQueue<Double> mAccBuffer;
+    private List<Double> featureVector;
+    private TypeClassificationTask mTypeClassificationTask;
 
     //location listener
     private final LocationListener locationListener = new LocationListener() {
@@ -97,6 +116,13 @@ public class TrackingService extends Service {
         locationManager.requestLocationUpdates(provider, 1000, 5,
                 locationListener);
 
+        // sensorManager
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_FASTEST);
+        mAccBuffer = new ArrayBlockingQueue<Double>(ACCELEROMETER_BUFFER_CAPACITY);
+        featureVector = new ArrayList<>();
+        mTypeClassificationTask = new TypeClassificationTask();
+
         //start activity update
         if (l != null) {
             updateWithNewLocation(l);
@@ -113,6 +139,7 @@ public class TrackingService extends Service {
         isRunning = false;
         mNotificationManager.cancelAll();
         locationManager.removeUpdates(locationListener);
+        sensorManager.unregisterListener(this);
     }
 
     @Override
@@ -177,6 +204,10 @@ public class TrackingService extends Service {
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(LOCATION_UPDATE));
     }
 
+    void sendMsg2() {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(TYPE_CLASSIFY));
+    }
+
     public ExerciseEntry getmEntry() {
         return mEntry;
     }
@@ -204,6 +235,81 @@ public class TrackingService extends Service {
         TrackingService getService() {
             // Return this instance of DownloadBinder so clients can call public methods
             return TrackingService.this;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            double x = event.values[0];
+            double y = event.values[1];
+            double z = event.values[2];
+
+            double magnitude = Math.sqrt(x * x + y * y + z * z);
+
+            // Insert the element into this queue if possible
+            // If no space is available, use a capacity-restricted queue
+            try {
+                mAccBuffer.add(new Double(magnitude));
+            } catch (IllegalStateException e) {
+                ArrayBlockingQueue<Double> newBuffer = new ArrayBlockingQueue<Double>(mAccBuffer.size() * 2);
+                mAccBuffer.drainTo(newBuffer);
+                mAccBuffer = newBuffer;
+                mAccBuffer.add(new Double(magnitude));
+            }
+        }
+    }
+
+    private class TypeClassificationTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            int blockSize = 0;
+            FFT fft = new FFT(ACCELEROMETER_BLOCK_CAPACITY);
+            double[] accBlock = new double[ACCELEROMETER_BLOCK_CAPACITY];
+            double[] re = accBlock;
+            double[] im = new double[ACCELEROMETER_BLOCK_CAPACITY];
+            double max = Double.MIN_VALUE;
+
+            while(true) {
+                try {
+                    if(isCancelled() == true) {
+                        return null;
+                    }
+
+                    // dumping buffer
+                    accBlock[blockSize++] = mAccBuffer.take().doubleValue();
+
+                    if(blockSize == ACCELEROMETER_BLOCK_CAPACITY) {
+                        blockSize = 0;
+
+                        max = .0;
+                        for(double val:accBlock) {
+                            if(max < val) {
+                                max = val;
+                            }
+                        }
+
+                        fft.fft(re, im);
+
+                        for(int i = 0; i< re.length; i++) {
+                            double mag = Math.sqrt(re[i] * re[i] + im[i] * im[i]);
+                            featureVector.add(new Double(mag));
+                            im[i] = .0;
+                        }
+
+                        featureVector.add(new Double(max));
+
+                        WekaClassifier.classify(featureVector.toArray());
+
+                        sendMsg2();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
