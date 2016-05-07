@@ -179,6 +179,7 @@ public class TrackingService extends Service implements SensorEventListener {
         notification.flags = notification.flags
                 | Notification.FLAG_ONGOING_EVENT;
 
+
         mNotificationManager.notify(0, notification);
     }
 
@@ -253,7 +254,7 @@ public class TrackingService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             double x = event.values[0];
             double y = event.values[1];
             double z = event.values[2];
