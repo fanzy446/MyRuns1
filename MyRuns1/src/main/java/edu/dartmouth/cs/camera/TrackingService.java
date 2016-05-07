@@ -19,6 +19,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -33,10 +34,11 @@ public class TrackingService extends Service implements SensorEventListener {
 
     public static final String LOCATION_UPDATE = "location_update";
     public static final String TYPE_CLASSIFY = "type_classify";
-
+    public static final int ACCELEROMETER_BUFFER_CAPACITY = 2048;
+    public static final int ACCELEROMETER_BLOCK_CAPACITY = 64;
+    private static ArrayBlockingQueue<Double> mAccBuffer;
     private static boolean isRunning = false;
     private final IBinder mBinder = new TrackingBinder();
-
     private NotificationManager mNotificationManager;
     private ExerciseEntry mEntry = null;
     private LocationManager locationManager = null;
@@ -46,24 +48,19 @@ public class TrackingService extends Service implements SensorEventListener {
     private double mStartClimb = 0;
     private Location mLatestPosition = null;
     private double curSpeed = 0;
-
-    public static final int ACCELEROMETER_BUFFER_CAPACITY = 2048;
-    public static final int ACCELEROMETER_BLOCK_CAPACITY = 64;
-
-    private static ArrayBlockingQueue<Double> mAccBuffer;
     private List<Double> featureVector;
     private TypeClassificationTask mTypeClassificationTask;
-
     private int mStandingLabel = 0;
     private int mWalkingLabel = 0;
     private int mRunningLabel = 0;
     private int mOthersLabel = 0;
-
     //location listener
     private final LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             updateWithNewLocation(location);
-            sendMsg();
+            if (isRunning) {
+                sendMsg();
+            }
         }
 
         public void onProviderDisabled(String provider) {
@@ -90,11 +87,6 @@ public class TrackingService extends Service implements SensorEventListener {
         return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
-    // Is the service running?
-    public static boolean isRunning() {
-        return isRunning;
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -117,25 +109,39 @@ public class TrackingService extends Service implements SensorEventListener {
         criteria.setCostAllowed(true);
         String provider = locationManager.getBestProvider(criteria, true);
 
-        Location l = locationManager.getLastKnownLocation(provider);
+
         locationManager.requestLocationUpdates(provider, 1000, 5,
                 locationListener);
 
-        // sensorManager
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_FASTEST);
-        mAccBuffer = new ArrayBlockingQueue<Double>(ACCELEROMETER_BUFFER_CAPACITY);
-        featureVector = new ArrayList<>();
-        mTypeClassificationTask = new TypeClassificationTask();
-
         //start activity update
+        Location l = locationManager.getLastKnownLocation(provider);
         if (l != null) {
             updateWithNewLocation(l);
-            sendMsg();
         }
 
         showNotification();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        mEntry.setmInputType(intent.getIntExtra(MapDisplayActivity.INPUT_TYPE, 0));
+        mEntry.setmActivityType(intent.getIntExtra(MapDisplayActivity.ACTIVITY_TYPE, 0));
+
+        if (mEntry.getmInputType() == 2) {
+            Log.d("Fanzy", "start sensorManager");
+            // sensorManager
+            sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_FASTEST);
+            mAccBuffer = new ArrayBlockingQueue<>(ACCELEROMETER_BUFFER_CAPACITY);
+            featureVector = new ArrayList<>();
+            mTypeClassificationTask = new TypeClassificationTask();
+            mTypeClassificationTask.execute();
+        }
+
         isRunning = true;
+        sendMsg();
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -144,7 +150,10 @@ public class TrackingService extends Service implements SensorEventListener {
         isRunning = false;
         mNotificationManager.cancelAll();
         locationManager.removeUpdates(locationListener);
-        sensorManager.unregisterListener(this);
+        if (mEntry.getmInputType() == 2) {
+            sensorManager.unregisterListener(this);
+            mTypeClassificationTask.cancel(true);
+        }
     }
 
     @Override
@@ -200,6 +209,8 @@ public class TrackingService extends Service implements SensorEventListener {
 
         mLatestPosition = location;
         mLatestTime = curTime;
+
+        mEntry.setmActivityType(findOverallLabel());
     }
 
     /**
@@ -236,15 +247,9 @@ public class TrackingService extends Service implements SensorEventListener {
         this.curSpeed = curSpeed;
     }
 
-    public class TrackingBinder extends Binder {
-        TrackingService getService() {
-            // Return this instance of DownloadBinder so clients can call public methods
-            return TrackingService.this;
-        }
-    }
-
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -252,19 +257,36 @@ public class TrackingService extends Service implements SensorEventListener {
             double x = event.values[0];
             double y = event.values[1];
             double z = event.values[2];
+            Log.d("Fanzy", String.format("onSensorChanged: %f, %f, %f", x, y, z));
 
             double magnitude = Math.sqrt(x * x + y * y + z * z);
 
             // Insert the element into this queue if possible
             // If no space is available, use a capacity-restricted queue
             try {
-                mAccBuffer.add(new Double(magnitude));
+                mAccBuffer.add(magnitude);
             } catch (IllegalStateException e) {
-                ArrayBlockingQueue<Double> newBuffer = new ArrayBlockingQueue<Double>(mAccBuffer.size() * 2);
+                ArrayBlockingQueue<Double> newBuffer = new ArrayBlockingQueue<>(mAccBuffer.size() * 2);
                 mAccBuffer.drainTo(newBuffer);
                 mAccBuffer = newBuffer;
-                mAccBuffer.add(new Double(magnitude));
+                mAccBuffer.add(magnitude);
             }
+        }
+    }
+
+    // the activity with the most labels become the overall label
+    public int findOverallLabel() {
+        int max = Math.max(Math.max(mStandingLabel, mWalkingLabel), Math.max(mRunningLabel, mOthersLabel));
+        if (max == mRunningLabel) return 0;
+        else if (max == mWalkingLabel) return 1;
+        else if (max == mStandingLabel) return 2;
+        else return -1;
+    }
+
+    public class TrackingBinder extends Binder {
+        TrackingService getService() {
+            // Return this instance of DownloadBinder so clients can call public methods
+            return TrackingService.this;
         }
     }
 
@@ -281,7 +303,7 @@ public class TrackingService extends Service implements SensorEventListener {
             while(true) {
                 // check if the AsyncTask is cancelled or not in the while loop
                 try {
-                    if(isCancelled() == true) {
+                    if (isCancelled()) {
                         return null;
                     }
 
@@ -311,30 +333,30 @@ public class TrackingService extends Service implements SensorEventListener {
                         // current activity label
                         double label = WekaClassifier.classify(featureVector.toArray());
 
-                        if(label == 0.0) mStandingLabel++;
-                        else if(label == 1.0) mWalkingLabel++;
-                        else if(label == 2.0) mRunningLabel++;
-                        else mOthersLabel++;
+                        if (label == 0.0) {
+                            Log.d("Fanzy", "mStandingLabel");
+                            mStandingLabel++;
+                        } else if (label == 1.0) {
+                            Log.d("Fanzy", "mWalkingLabel");
+                            mWalkingLabel++;
+                        } else if (label == 2.0) {
+                            Log.d("Fanzy", "mRunningLabel");
+                            mRunningLabel++;
+                        } else {
+                            Log.d("Fanzy", "mOthersLabel");
+                            mOthersLabel++;
+                        }
 
                         featureVector.clear();
 
-                        Intent intent = new Intent(TYPE_CLASSIFY);
-                        intent.putExtra("classified_label", label);
-                        sendMsg2(intent);
+//                        Intent intent = new Intent(TYPE_CLASSIFY);
+//                        intent.putExtra("classified_label", label);
+//                        sendMsg2(intent);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-    }
-
-    // the activity with the most labels become the overall label
-    public String findOverallLabel() {
-        int max = Math.max(Math.max(mStandingLabel, mWalkingLabel), Math.max(mRunningLabel, mOthersLabel));
-        if(max == mStandingLabel) return "Standing";
-        else if(max == mWalkingLabel) return "Walking";
-        else if(max == mRunningLabel) return "Running";
-        else return "Others";
     }
 }

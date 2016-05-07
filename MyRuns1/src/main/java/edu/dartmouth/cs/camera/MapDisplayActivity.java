@@ -38,6 +38,8 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
     public static final String ENTRY = "maps_entry";
     public static final String CURSPEED = "maps_curspeed";
+    public static final String INPUT_TYPE = "maps_inputtype";
+    public static final String ACTIVITY_TYPE = "maps_acttype";
     private GoogleMap mMap;
 
     private TrackingService mService = null;
@@ -77,6 +79,11 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private BroadcastReceiver onClassificationReceived = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (mBounded) {
+                mEntry = mService.getmEntry();
+                mSpeed = mService.getCurSpeed();
+                updateUI();
+            }
             double mType = intent.getDoubleExtra("classified_label", 0);
             if(mType == 0.0) mTypeText.setText("Type: Standing");
             else if(mType == 1.0) mTypeText.setText("Type: Walking");
@@ -112,7 +119,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
             mEntry.setmInputType(bundle.getInt(StartFragment.INPUT_TYPE, 0));
             mEntry.setmActivityType(bundle.getInt(StartFragment.ACTIVITY_TYPE, 0));
             mEntry.init();
-            startService(new Intent(this, TrackingService.class));
             doBindService();
         } else {
             mEntry = (new Gson()).fromJson(bundle.getString(HistoryFragment.ENTRY), ExerciseEntry.class);
@@ -135,7 +141,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     protected void onDestroy() {
         super.onDestroy();
         doUnbindService();
-        stopService(new Intent(this, TrackingService.class));
         bm.unregisterReceiver(onLocationReceived);
         bm2.unregisterReceiver(onClassificationReceived);
     }
@@ -179,9 +184,9 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mService = ((TrackingService.TrackingBinder) service).getService();
-        while (!TrackingService.isRunning()) {
-        }
-        mService.initializeEntry(mEntry.getmInputType(), mEntry.getmActivityType());
+//        while (!TrackingService.isRunning()) {
+//        }
+//        mService.initializeEntry(mEntry.getmInputType(), mEntry.getmActivityType());
         mBounded = true;
     }
 
@@ -195,7 +200,10 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
      * start and bind service
      */
     private void doBindService() {
-        startService(new Intent(this, TrackingService.class));
+        Intent intent = new Intent(this, TrackingService.class);
+        intent.putExtra(INPUT_TYPE, mEntry.getmInputType());
+        intent.putExtra(ACTIVITY_TYPE, mEntry.getmActivityType());
+        startService(intent);
         bindService(new Intent(this, TrackingService.class), this, Context.BIND_AUTO_CREATE);
     }
 
@@ -213,7 +221,11 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
      * update the UI
      */
     private void updateUI() {
-        mTypeText.setText(String.format("Type: %s", getResources().getStringArray(R.array.spinner_activity_type)[mEntry.getmActivityType()]));
+        if (mEntry.getmActivityType() == -1) {
+            mTypeText.setText("Type: Others");
+        } else {
+            mTypeText.setText(String.format("Type: %s", getResources().getStringArray(R.array.spinner_activity_type)[mEntry.getmActivityType()]));
+        }
         mAvgspeedText.setText(String.format("Avg speed: %s", DistanceUnitHelper.speedToString(this, mEntry.getmAvgSpeed(), true)));
         mCurspeedText.setText(String.format("Cur speed: %s", DistanceUnitHelper.speedToString(this, mSpeed, true)));
         mClimbText.setText(String.format("Climb: %s", DistanceUnitHelper.distanceToString(this, mEntry.getmClimb(), true)));
