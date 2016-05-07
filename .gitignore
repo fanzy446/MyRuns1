@@ -40,3 +40,6 @@ Thumbs.db
 .idea/tasks.xml
 .idea/datasources.xml
 .idea/dataSources.ids
+
+# Google map api key
+MyRuns1/src/debug/res/values/google_maps_api.xml
