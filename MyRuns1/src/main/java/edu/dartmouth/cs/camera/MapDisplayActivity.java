@@ -36,15 +36,12 @@ import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
 public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCallback, ServiceConnection {
 
-    public static final String ENTRY = "maps_entry";
-    public static final String CURSPEED = "maps_curspeed";
     public static final String INPUT_TYPE = "maps_inputtype";
     public static final String ACTIVITY_TYPE = "maps_acttype";
     private GoogleMap mMap;
 
     private TrackingService mService = null;
     private LocalBroadcastManager bm = null;
-    private LocalBroadcastManager bm2 = null;
 
     private ExerciseEntry mEntry = null;
     private TextView mTypeText = null;
@@ -76,22 +73,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         }
     };
 
-    private BroadcastReceiver onClassificationReceived = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (mBounded) {
-                mEntry = mService.getmEntry();
-                mSpeed = mService.getCurSpeed();
-                updateUI();
-            }
-            double mType = intent.getDoubleExtra("classified_label", 0);
-            if(mType == 0.0) mTypeText.setText("Type: Standing");
-            else if(mType == 1.0) mTypeText.setText("Type: Walking");
-            else if(mType == 2.0) mTypeText.setText("Type: Running");
-            else mTypeText.setText("Others");
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,8 +91,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
 
         bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(onLocationReceived, new IntentFilter(TrackingService.LOCATION_UPDATE));
-        bm2 = LocalBroadcastManager.getInstance(this);
-        bm2.registerReceiver(onClassificationReceived, new IntentFilter((TrackingService.TYPE_CLASSIFY)));
 
         Bundle bundle = getIntent().getExtras();
         if (!bundle.containsKey(HistoryFragment.ENTRY)) {
@@ -142,7 +121,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
         super.onDestroy();
         doUnbindService();
         bm.unregisterReceiver(onLocationReceived);
-        bm2.unregisterReceiver(onClassificationReceived);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -184,9 +162,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mService = ((TrackingService.TrackingBinder) service).getService();
-//        while (!TrackingService.isRunning()) {
-//        }
-//        mService.initializeEntry(mEntry.getmInputType(), mEntry.getmActivityType());
         mBounded = true;
     }
 
