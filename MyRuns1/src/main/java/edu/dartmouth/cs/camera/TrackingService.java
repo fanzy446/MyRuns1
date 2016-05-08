@@ -33,7 +33,7 @@ import edu.dartmouth.cs.camera.helper.FFT;
 public class TrackingService extends Service implements SensorEventListener {
 
     public static final String LOCATION_UPDATE = "location_update";
-    public static final String TYPE_CLASSIFY = "type_classify";
+
     public static final int ACCELEROMETER_BUFFER_CAPACITY = 2048;
     public static final int ACCELEROMETER_BLOCK_CAPACITY = 64;
     private static ArrayBlockingQueue<Double> mAccBuffer;
@@ -129,7 +129,6 @@ public class TrackingService extends Service implements SensorEventListener {
         mEntry.setmActivityType(intent.getIntExtra(MapDisplayActivity.ACTIVITY_TYPE, 0));
 
         if (mEntry.getmInputType() == 2) {
-            Log.d("Fanzy", "start sensorManager");
             // sensorManager
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
             sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_FASTEST);
@@ -221,23 +220,8 @@ public class TrackingService extends Service implements SensorEventListener {
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(LOCATION_UPDATE));
     }
 
-    void sendMsg2(Intent intent) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
     public ExerciseEntry getmEntry() {
         return mEntry;
-    }
-
-    /**
-     * initialize the entry with inputType and activityType
-     *
-     * @param inputType    inputType
-     * @param activityType inputType
-     */
-    public void initializeEntry(int inputType, int activityType) {
-        mEntry.setmInputType(inputType);
-        mEntry.setmActivityType(activityType);
     }
 
     public double getCurSpeed() {
@@ -258,7 +242,6 @@ public class TrackingService extends Service implements SensorEventListener {
             double x = event.values[0];
             double y = event.values[1];
             double z = event.values[2];
-            Log.d("Fanzy", String.format("onSensorChanged: %f, %f, %f", x, y, z));
 
             double magnitude = Math.sqrt(x * x + y * y + z * z);
 
@@ -305,6 +288,7 @@ public class TrackingService extends Service implements SensorEventListener {
                 // check if the AsyncTask is cancelled or not in the while loop
                 try {
                     if (isCancelled()) {
+                        Log.d("Fanzy", "isCancelled");
                         return null;
                     }
 
@@ -335,24 +319,16 @@ public class TrackingService extends Service implements SensorEventListener {
                         double label = WekaClassifier.classify(featureVector.toArray());
 
                         if (label == 0.0) {
-                            Log.d("Fanzy", "mStandingLabel");
                             mStandingLabel++;
                         } else if (label == 1.0) {
-                            Log.d("Fanzy", "mWalkingLabel");
                             mWalkingLabel++;
                         } else if (label == 2.0) {
-                            Log.d("Fanzy", "mRunningLabel");
                             mRunningLabel++;
                         } else {
-                            Log.d("Fanzy", "mOthersLabel");
                             mOthersLabel++;
                         }
 
                         featureVector.clear();
-
-//                        Intent intent = new Intent(TYPE_CLASSIFY);
-//                        intent.putExtra("classified_label", label);
-//                        sendMsg2(intent);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
