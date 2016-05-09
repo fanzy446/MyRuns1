@@ -33,7 +33,6 @@ public class CameraControlActivity extends Activity {
 	public static final int REQUEST_CODE_CROP_PHOTO = 2;
 
 	private static final String IMAGE_UNSPECIFIED = "image/*";
-	private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
 
 	private Uri mImageCaptureUri;
 	private ImageView mImageView;

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +58,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
                 ExerciseEntry data = listItems.get(position);
 
                 String str1 = String.format("%s: %s: %s", getResources().getStringArray(R.array.spinner_input_type)[data.getmInputType()],
-                        data.getmInputType() == 2 ? "Unknown" : getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()],
+                        data.getmActivityType() == -1 ? "Unknown" : getResources().getStringArray(R.array.spinner_activity_type)[data.getmActivityType()],
                         DateHelper.calendarToString(data.getmDateTime()));
 
                 String str2 = String.format("%s, %s", DistanceUnitHelper.distanceToString(getContext(), data.getmDistance(), true), DateHelper.secondsToString(data.getmDuration()));
@@ -145,7 +144,6 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
             }
             ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(context);
             List<ExerciseEntry> result = dbHelper.fetchEntries();
-            Log.d("Fanzy", "Load in background: " + result.size());
             dbHelper.close();
             return result;
         }

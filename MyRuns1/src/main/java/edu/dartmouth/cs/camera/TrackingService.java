@@ -19,7 +19,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -54,6 +53,8 @@ public class TrackingService extends Service implements SensorEventListener {
     private int mWalkingLabel = 0;
     private int mRunningLabel = 0;
     private int mOthersLabel = 0;
+    private int mOverallLabel = 2;
+
     //location listener
     private final LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -128,6 +129,7 @@ public class TrackingService extends Service implements SensorEventListener {
         mEntry.setmInputType(intent.getIntExtra(MapDisplayActivity.INPUT_TYPE, 0));
         mEntry.setmActivityType(intent.getIntExtra(MapDisplayActivity.ACTIVITY_TYPE, 0));
 
+        //start sensor if the input type is automatic
         if (mEntry.getmInputType() == 2) {
             // sensorManager
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -209,14 +211,13 @@ public class TrackingService extends Service implements SensorEventListener {
 
         mLatestPosition = location;
         mLatestTime = curTime;
-
-        mEntry.setmActivityType(findOverallLabel());
     }
 
     /**
      * notify UI that mEntry is updated
      */
     void sendMsg() {
+        mEntry.setmActivityType(mOverallLabel);
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(LOCATION_UPDATE));
     }
 
@@ -226,10 +227,6 @@ public class TrackingService extends Service implements SensorEventListener {
 
     public double getCurSpeed() {
         return curSpeed;
-    }
-
-    public void setCurSpeed(double curSpeed) {
-        this.curSpeed = curSpeed;
     }
 
     @Override
@@ -274,6 +271,9 @@ public class TrackingService extends Service implements SensorEventListener {
         }
     }
 
+    /**
+     * The asynctask used for classification
+     */
     private class TypeClassificationTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... arg0) {
@@ -288,7 +288,6 @@ public class TrackingService extends Service implements SensorEventListener {
                 // check if the AsyncTask is cancelled or not in the while loop
                 try {
                     if (isCancelled()) {
-                        Log.d("Fanzy", "isCancelled");
                         return null;
                     }
 
@@ -327,8 +326,11 @@ public class TrackingService extends Service implements SensorEventListener {
                         } else {
                             mOthersLabel++;
                         }
-
                         featureVector.clear();
+                        if (findOverallLabel() != mOverallLabel) {
+                            mOverallLabel = findOverallLabel();
+                            sendMsg();
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
