@@ -58,9 +58,6 @@ public class MapDisplayActivity extends FragmentActivity implements OnMapReadyCa
     private double mSpeed = 0;
     private boolean mBounded = false;
 
-    // check if it is Automatic, if it is, should get the activity type
-    private boolean isAutomatic = false;
-
     // the broadcast receiver upon the update of mEntry in the service
     private BroadcastReceiver onLocationReceived = new BroadcastReceiver() {
         @Override

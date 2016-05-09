@@ -6,19 +6,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Spinner;
 
-/**
- * Created by oubai on 4/7/16.
- */
 public class StartFragment extends Fragment {
 
     public static final String INPUT_TYPE = "Input Type";
     public static final String ACTIVITY_TYPE = "Activity Type";
-
-    private Button mStart;
-    private Button mSync;
 
     public StartFragment() {
 

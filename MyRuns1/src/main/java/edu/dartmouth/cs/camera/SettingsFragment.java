@@ -6,15 +6,8 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.v4.view.ViewPager;
-import android.widget.CheckBox;
 
 public class SettingsFragment extends PreferenceFragment {
-
-    private CheckBox mPrivacyCheckBox;
-    private boolean mPrivacy;
-    private String mUnit;
-    private String mComment;
-
     public SettingsFragment() {
         // Required empty public constructor
     }
