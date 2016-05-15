@@ -7,7 +7,7 @@
         <option name="HTTP_PORT" value="8080" />
         <option name="WAR_DIR" value="$MODULE_DIR$/build/exploded-app" />
         <option name="WEB_APP_DIR" value="$MODULE_DIR$/src/main/webapp" />
-        <option name="APPENGINE_SDKROOT" value="$USER_HOME$/.gradle/appengine-sdk/appengine-java-sdk-1.9.28" />
+        <option name="APPENGINE_SDKROOT" value="$USER_HOME$/.gradle/appengine-sdk/appengine-java-sdk-1.9.18" />
       </configuration>
     </facet>
     <facet type="android-gradle" name="Android-Gradle">
@@ -36,9 +36,16 @@
       <sourceFolder url="file://$MODULE_DIR$/src/functionalTest/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="servlet-api-2.5" level="project" />
+    <orderEntry type="library" exported="" name="appengine-endpoints-1.9.14" level="project" />
+    <orderEntry type="library" exported="" name="appengine-endpoints-deps-1.9.14" level="project" />
+    <orderEntry type="library" exported="" name="appengine-api-labs-1.9.32" level="project" />
+    <orderEntry type="library" exported="" name="objectify-5.0.3" level="project" />
+    <orderEntry type="library" exported="" name="appengine-api-1.0-sdk-1.9.14" level="project" />
+    <orderEntry type="library" exported="" name="guava-17.0" level="project" />
   </component>
 </module>
