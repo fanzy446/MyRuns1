@@ -1,6 +1,7 @@
 package edu.dartmouth.cs.camera.backend.data;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -29,16 +30,39 @@ public class ExerciseEntryDatastore {
         mDatastore.put(entity);
     }
 
+    // add entity to datastore
     public static boolean add(ExerciseEntry exerciseEntry) {
+        if(getExerciseEntryById(exerciseEntry.getId(), null) != null) {
+            mLogger.log(Level.INFO, "entry exists");
+            return false;
+        }
+
+        Key parentKey = getKey();
+
+        Entity entity = new Entity(ExerciseEntry.EXERCISEENTRY_ENTITY_NAME, exerciseEntry.id, parentKey);
+        entity.setProperty(ExerciseEntry.FIELD_NAME_ID, exerciseEntry.getId());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_INPUT, exerciseEntry.getmInputType());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_ACTIVITY, exerciseEntry.getmActivityType());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_TIME, exerciseEntry.getmDateTime());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_DURATION, exerciseEntry.getmDuration());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_DISTANCE, exerciseEntry.getmDistance());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_AVG, exerciseEntry.getmAvgSpeed());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_CALORIE, exerciseEntry.getmCalorie());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_CLIMB, exerciseEntry.getmClimb());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_HEART, exerciseEntry.getmHeartRate());
+        entity.setProperty(ExerciseEntry.FIELD_NAME_COMMENT, exerciseEntry.getmComment());
+
+        mDatastore.put(entity);
+
         return true;
     }
 
+    // update datastore
     public static boolean update(ExerciseEntry exerciseEntry) {
         Entity result = null;
         try {
             result = mDatastore.get(KeyFactory.createKey(getKey(), ExerciseEntry.EXERCISEENTRY_PARENT_ENTITY_NAME, exerciseEntry.getId()));
             result.setProperty(ExerciseEntry.FIELD_NAME_ID, exerciseEntry.getId());
-            result.setProperty(ExerciseEntry.FIELD_NAME_INPUT, exerciseEntry.getmInputType());
             result.setProperty(ExerciseEntry.FIELD_NAME_INPUT, exerciseEntry.getmInputType());
             result.setProperty(ExerciseEntry.FIELD_NAME_ACTIVITY, exerciseEntry.getmActivityType());
             result.setProperty(ExerciseEntry.FIELD_NAME_TIME, exerciseEntry.getmDateTime());
@@ -56,16 +80,21 @@ public class ExerciseEntryDatastore {
         return false;
     }
 
+    //delete entity by id in datastore
     public static boolean delete(Long id) {
+
+        // query
         Query.Filter filter = new Query.FilterPredicate(ExerciseEntry.FIELD_NAME_ID, Query.FilterOperator.EQUAL, id);
         Query query = new Query(ExerciseEntry.EXERCISEENTRY_ENTITY_NAME);
         query.setFilter(filter);
 
+        // use preparedQuery interface to retrieve results
         PreparedQuery pq = mDatastore.prepare(query);
 
         Entity result = pq.asSingleEntity();
         boolean ret = false;
         if(result != null) {
+            // delete
             mDatastore.delete(result.getKey());
             ret = true;
         }
@@ -75,7 +104,7 @@ public class ExerciseEntryDatastore {
 
     public static ArrayList<ExerciseEntry> query(Long id) {
         ArrayList<ExerciseEntry> resultList = new ArrayList<>();
-        if(!id.equals(1L)) {
+        if(!id.equals(-1L)) {
             ExerciseEntry exerciseEntry = getExerciseEntryById(id, null);
             if(exerciseEntry != null) {
                 resultList.add(exerciseEntry);
@@ -83,7 +112,9 @@ public class ExerciseEntryDatastore {
         }
         else {
             Query query = new Query(ExerciseEntry.EXERCISEENTRY_ENTITY_NAME);
+            // get every record from datastore
             query.setFilter(null);
+            // set query's ancestor to get strong consistency
             query.setAncestor(getKey());
 
             PreparedQuery pq = mDatastore.prepare(query);
@@ -98,6 +129,7 @@ public class ExerciseEntryDatastore {
         return  resultList;
     }
 
+    // get entry by id
     public static ExerciseEntry getExerciseEntryById(Long id, Transaction txn) {
         Entity result = null;
         try {
@@ -109,6 +141,7 @@ public class ExerciseEntryDatastore {
         return getExerciseFromEntity(result);
     }
 
+    // get entry from entity
     private static ExerciseEntry getExerciseFromEntity(Entity entity) {
         if(entity == null) return null;
         ExerciseEntry exerciseEntry = new ExerciseEntry();

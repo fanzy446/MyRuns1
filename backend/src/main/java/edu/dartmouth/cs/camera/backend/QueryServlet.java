@@ -20,7 +20,9 @@ public class QueryServlet extends HttpServlet {
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         String id = req.getParameter("id");
-        ArrayList<ExerciseEntry> result = ExerciseEntryDatastore.query(id);
+        ArrayList<ExerciseEntry> result;
+        if(id == null) result = ExerciseEntryDatastore.query(-1L);
+        else result = ExerciseEntryDatastore.query(Long.parseLong(id));
         req.setAttribute("result", result);
         getServletContext().getRequestDispatcher("/query_result.jsp").forward(req, resp);
     }
