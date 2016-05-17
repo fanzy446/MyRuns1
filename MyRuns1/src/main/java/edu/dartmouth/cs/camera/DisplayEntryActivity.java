@@ -16,6 +16,7 @@ import edu.dartmouth.cs.camera.helper.DistanceUnitHelper;
 
 public class DisplayEntryActivity extends Activity {
 
+    public static final String ID = "id";
     private ExerciseEntry mEntry;
 
     @Override

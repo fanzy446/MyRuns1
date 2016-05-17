@@ -8,6 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Spinner;
 
+import com.google.gson.Gson;
+
+import edu.dartmouth.cs.camera.database.ExerciseEntryDbHelper;
+import edu.dartmouth.cs.camera.gcm.GCMAsyncTask;
+
 public class StartFragment extends Fragment {
 
     public static final String INPUT_TYPE = "Input Type";
@@ -41,7 +46,7 @@ public class StartFragment extends Fragment {
         view.findViewById(R.id.start_sync_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onStartClicked(v);
+                onSyncClicked(v);
             }
         });
 
@@ -80,7 +85,10 @@ public class StartFragment extends Fragment {
         }
     }
 
-    // the function of the SYNC button, do nothing
     public void onSyncClicked(View v) {
+        ExerciseEntryDbHelper dbHelper = new ExerciseEntryDbHelper(getActivity());
+        String json = (new Gson()).toJson(dbHelper.fetchEntries());
+        dbHelper.close();
+        (new GCMAsyncTask(getActivity())).execute(GCMAsyncTask.UPDATE, json);
     }
 }

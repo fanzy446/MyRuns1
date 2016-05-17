@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MyRuns5</string>
+    <string name="app_name">MyRuns6</string>
     <string name="preference_name">my_shared_preferences</string>
 
     <!-- Setting Fragment -->
