@@ -1,5 +1,9 @@
 package edu.dartmouth.cs.camera.backend;
 
+import com.google.appengine.labs.repackaged.org.json.JSONArray;
+import com.google.appengine.labs.repackaged.org.json.JSONException;
+import com.google.appengine.labs.repackaged.org.json.JSONObject;
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -18,33 +22,45 @@ public class UpdateServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        String id = req.getParameter("id");
-        String input = req.getParameter("input_type");
-        String activity = req.getParameter("activity_type");
-        String time = req.getParameter("time");
-        String duration = req.getParameter("duration");
-        String distance = req.getParameter("distance");
-        String avg = req.getParameter("avg_speed");
-        String calorie = req.getParameter("calorie");
-        String climb = req.getParameter("climb");
-        String heart = req.getParameter("heart_rate");
-        String comment = req.getParameter("comment");
+        JSONArray arr = null;
+        try {
+            arr = new JSONArray(req.getParameter("entry"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < arr.length(); i++) {
+            try {
+                JSONObject object = arr.getJSONObject(i);
+                String id = object.getString("id");
+                String input = object.getString("input_type");
+                String activity = object.getString("activity_type");
+                String time = object.getString("time");
+                String duration = object.getString("duration");
+                String distance = object.getString("distance");
+                String avg = object.getString("avg_speed");
+                String calorie = object.getString("calorie");
+                String climb = object.getString("climb");
+                String heart = object.getString("heart_rate");
+                String comment = object.getString("comment");
+                if(Long.parseLong(id) != -1L) {
+                    ExerciseEntry exerciseEntry = new ExerciseEntry();
+                    exerciseEntry.setId(Long.parseLong(id));
+                    exerciseEntry.setmInputType(input);
+                    exerciseEntry.setmActivityType(activity);
+                    exerciseEntry.setmDateTime(time);
+                    exerciseEntry.setmDuration(duration);
+                    exerciseEntry.setmDistance(distance);
+                    exerciseEntry.setmAvgSpeed(avg);
+                    exerciseEntry.setmCalorie(calorie);
+                    exerciseEntry.setmClimb(climb);
+                    exerciseEntry.setmHeartRate(heart);
+                    exerciseEntry.setmComment(comment);
 
-        if(Long.parseLong(id) != -1L) {
-            ExerciseEntry exerciseEntry = new ExerciseEntry();
-            exerciseEntry.setId(Long.parseLong(id));
-            exerciseEntry.setmInputType(input);
-            exerciseEntry.setmActivityType(activity);
-            exerciseEntry.setmDateTime(time);
-            exerciseEntry.setmDuration(duration);
-            exerciseEntry.setmDistance(distance);
-            exerciseEntry.setmAvgSpeed(avg);
-            exerciseEntry.setmCalorie(calorie);
-            exerciseEntry.setmClimb(climb);
-            exerciseEntry.setmHeartRate(heart);
-            exerciseEntry.setmComment(comment);
-
-            ExerciseEntryDatastore.update(exerciseEntry);
+                    ExerciseEntryDatastore.update(exerciseEntry);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         resp.sendRedirect("/query.do");
