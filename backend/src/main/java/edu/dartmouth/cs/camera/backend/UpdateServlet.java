@@ -7,7 +7,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.util.Calendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,23 +33,23 @@ public class UpdateServlet extends HttpServlet {
                 entry.setId(obj.get(ExerciseEntry.FIELD_NAME_ID).toString());
                 entry.setmInputType(obj.get(ExerciseEntry.FIELD_NAME_INPUT).toString());
                 entry.setmActivityType(obj.get(ExerciseEntry.FIELD_NAME_ACTIVITY).toString());
-                Calendar calendar = (Calendar) obj.get(ExerciseEntry.FIELD_NAME_TIME);
-                String time = calendar.get(Calendar.HOUR) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + " " + calendar.get(Calendar.MONTH) + " " + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.YEAR);
-                System.out.println(time);
+
+                JSONObject calendar = (JSONObject) obj.get(ExerciseEntry.FIELD_NAME_TIME);
+                String time = String.format("%s:%s:%s %s/%s/%s", calendar.get("hourOfDay"), calendar.get("minute"),
+                        calendar.get("second"), calendar.get("month"), calendar.get("dayOfMonth"), calendar.get("year"));
                 entry.setmDateTime(time);
 
                 if (obj.get(ExerciseEntry.FIELD_NAME_DURATION) != null) {
-                    entry.setmDuration(obj.get(ExerciseEntry.FIELD_NAME_DURATION).toString());
                     int seconds = Integer.parseInt(obj.get(ExerciseEntry.FIELD_NAME_DURATION).toString());
                     double min = seconds / 60;
-                    String duration = Double.toString(min) + "mins";
+                    String duration = String.format("%.2f mins", min);
                     entry.setmDuration(duration);
                 }
                 if (obj.get(ExerciseEntry.FIELD_NAME_DISTANCE) != null) {
-                    entry.setmDistance(obj.get(ExerciseEntry.FIELD_NAME_DISTANCE).toString() + "Miles");
+                    entry.setmDistance(String.format("%.2f Miles", Float.parseFloat(obj.get(ExerciseEntry.FIELD_NAME_DISTANCE).toString())));
                 }
                 if (obj.get(ExerciseEntry.FIELD_NAME_AVG) != null) {
-                    entry.setmAvgSpeed(obj.get(ExerciseEntry.FIELD_NAME_AVG).toString() + "m/h");
+                    entry.setmAvgSpeed(String.format("%.2f m/h", Float.parseFloat(obj.get(ExerciseEntry.FIELD_NAME_AVG).toString())));
                 }
                 if (obj.get(ExerciseEntry.FIELD_NAME_CALORIE) != null) {
                     entry.setmCalorie(obj.get(ExerciseEntry.FIELD_NAME_CALORIE).toString());

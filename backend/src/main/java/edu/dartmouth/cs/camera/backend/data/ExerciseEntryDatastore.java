@@ -145,7 +145,6 @@ public class ExerciseEntryDatastore {
         try {
             result = mDatastore.get(KeyFactory.createKey(getKey(), ExerciseEntry.EXERCISEENTRY_ENTITY_NAME, id));
         } catch (Exception ex) {
-            ex.printStackTrace();
         }
         return getExerciseFromEntity(result);
     }
