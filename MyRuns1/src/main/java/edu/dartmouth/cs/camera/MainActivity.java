@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 
 import java.util.ArrayList;
 
+import edu.dartmouth.cs.camera.gcm.GCMAsyncTask;
 import edu.dartmouth.cs.camera.view.SlidingTabLayout;
 
 public class MainActivity extends Activity {
@@ -38,6 +39,13 @@ public class MainActivity extends Activity {
 
         mSlidingTabLayout.setDistributeEvenly(true);
         mSlidingTabLayout.setViewPager(mViewPager);
+        new GCMAsyncTask(this).execute(GCMAsyncTask.REGISTER);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        new GCMAsyncTask(this).execute(GCMAsyncTask.UNREGISTER);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

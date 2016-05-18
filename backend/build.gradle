@@ -23,16 +23,20 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.18'
+    compile 'com.google.appengine:appengine-endpoints:1.9.18'
+    compile 'com.google.appengine:appengine-endpoints-deps:1.9.18'
     compile 'javax.servlet:servlet-api:2.5'
-    compile 'com.google.appengine:appengine-endpoints:1.9.14'
-    compile 'com.google.appengine:appengine-endpoints-deps:1.9.14'
-    compile 'com.google.appengine:appengine-api-labs:1.9.32'
     compile 'com.googlecode.objectify:objectify:5.0.3'
+    compile 'com.ganyo:gcm-server:1.0.2'
 }
 
 appengine {
-  downloadSdk = true
-  appcfg {
-    oauth2 = true
-  }
+    downloadSdk = true
+    appcfg {
+        oauth2 = true
+    }
+    endpoints {
+        getClientLibsOnBuild = true
+        getDiscoveryDocsOnBuild = true
+    }
 }
