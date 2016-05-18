@@ -1,9 +1,5 @@
 package edu.dartmouth.cs.camera.backend.data;
 
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -13,9 +9,10 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
 
-/**
- * Created by oubai on 5/14/16.
- */
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ExerciseEntryDatastore {
 
     private static final Logger mLogger = Logger.getLogger(ExerciseEntryDatastore.class.getName());
@@ -32,14 +29,14 @@ public class ExerciseEntryDatastore {
 
     // add entity to datastore
     public static boolean add(ExerciseEntry exerciseEntry) {
-        if(getExerciseEntryById(exerciseEntry.getId(), null) != null) {
+        if (getExerciseEntryById(exerciseEntry.getId(), null) != null) {
             mLogger.log(Level.INFO, "entry exists");
             return false;
         }
 
         Key parentKey = getKey();
 
-        Entity entity = new Entity(ExerciseEntry.EXERCISEENTRY_ENTITY_NAME, exerciseEntry.id, parentKey);
+        Entity entity = new Entity(ExerciseEntry.EXERCISEENTRY_ENTITY_NAME, exerciseEntry.getId(), parentKey);
         entity.setProperty(ExerciseEntry.FIELD_NAME_ID, exerciseEntry.getId());
         entity.setProperty(ExerciseEntry.FIELD_NAME_INPUT, exerciseEntry.getmInputType());
         entity.setProperty(ExerciseEntry.FIELD_NAME_ACTIVITY, exerciseEntry.getmActivityType());
@@ -59,9 +56,8 @@ public class ExerciseEntryDatastore {
 
     // update datastore
     public static boolean update(ExerciseEntry exerciseEntry) {
-        Entity result = null;
         try {
-            result = mDatastore.get(KeyFactory.createKey(getKey(), ExerciseEntry.EXERCISEENTRY_PARENT_ENTITY_NAME, exerciseEntry.getId()));
+            Entity result = mDatastore.get(KeyFactory.createKey(getKey(), ExerciseEntry.EXERCISEENTRY_PARENT_ENTITY_NAME, exerciseEntry.getId()));
             result.setProperty(ExerciseEntry.FIELD_NAME_ID, exerciseEntry.getId());
             result.setProperty(ExerciseEntry.FIELD_NAME_INPUT, exerciseEntry.getmInputType());
             result.setProperty(ExerciseEntry.FIELD_NAME_ACTIVITY, exerciseEntry.getmActivityType());
@@ -74,14 +70,15 @@ public class ExerciseEntryDatastore {
             result.setProperty(ExerciseEntry.FIELD_NAME_HEART, exerciseEntry.getmHeartRate());
             result.setProperty(ExerciseEntry.FIELD_NAME_COMMENT, exerciseEntry.getmComment());
             mDatastore.put(result);
+            return true;
         } catch (Exception ex) {
-
+            ex.printStackTrace();
         }
         return false;
     }
 
     //delete entity by id in datastore
-    public static boolean delete(Long id) {
+    public static boolean delete(String id) {
 
         // query
         Query.Filter filter = new Query.FilterPredicate(ExerciseEntry.FIELD_NAME_ID, Query.FilterOperator.EQUAL, id);
@@ -93,7 +90,7 @@ public class ExerciseEntryDatastore {
 
         Entity result = pq.asSingleEntity();
         boolean ret = false;
-        if(result != null) {
+        if (result != null) {
             // delete
             mDatastore.delete(result.getKey());
             ret = true;
@@ -102,15 +99,28 @@ public class ExerciseEntryDatastore {
         return ret;
     }
 
-    public static ArrayList<ExerciseEntry> query(Long id) {
+    public static void deleteAll() {
+        Query query = new Query(ExerciseEntry.EXERCISEENTRY_ENTITY_NAME);
+        // get every record from datastore
+        query.setFilter(null);
+        // set query's ancestor to get strong consistency
+        query.setAncestor(getKey());
+
+        PreparedQuery pq = mDatastore.prepare(query);
+
+        for (Entity entity : pq.asIterable()) {
+            mDatastore.delete(entity.getKey());
+        }
+    }
+
+    public static ArrayList<ExerciseEntry> query(String id) {
         ArrayList<ExerciseEntry> resultList = new ArrayList<>();
-        if(!id.equals(-1L)) {
+        if (id != null) {
             ExerciseEntry exerciseEntry = getExerciseEntryById(id, null);
-            if(exerciseEntry != null) {
+            if (exerciseEntry != null) {
                 resultList.add(exerciseEntry);
             }
-        }
-        else {
+        } else {
             Query query = new Query(ExerciseEntry.EXERCISEENTRY_ENTITY_NAME);
             // get every record from datastore
             query.setFilter(null);
@@ -119,33 +129,31 @@ public class ExerciseEntryDatastore {
 
             PreparedQuery pq = mDatastore.prepare(query);
 
-            for(Entity entity : pq.asIterable()) {
+            for (Entity entity : pq.asIterable()) {
                 ExerciseEntry exerciseEntry = getExerciseFromEntity(entity);
-                if(exerciseEntry != null) {
+                if (exerciseEntry != null) {
                     resultList.add(exerciseEntry);
                 }
             }
         }
-        return  resultList;
+        return resultList;
     }
 
     // get entry by id
-    public static ExerciseEntry getExerciseEntryById(Long id, Transaction txn) {
+    public static ExerciseEntry getExerciseEntryById(String id, Transaction txn) {
         Entity result = null;
         try {
             result = mDatastore.get(KeyFactory.createKey(getKey(), ExerciseEntry.EXERCISEENTRY_ENTITY_NAME, id));
         } catch (Exception ex) {
-
         }
-
         return getExerciseFromEntity(result);
     }
 
     // get entry from entity
     private static ExerciseEntry getExerciseFromEntity(Entity entity) {
-        if(entity == null) return null;
+        if (entity == null) return null;
         ExerciseEntry exerciseEntry = new ExerciseEntry();
-        exerciseEntry.setId((Long) entity.getProperty(ExerciseEntry.FIELD_NAME_ID));
+        exerciseEntry.setId((String) entity.getProperty(ExerciseEntry.FIELD_NAME_ID));
         exerciseEntry.setmInputType((String) entity.getProperty(ExerciseEntry.FIELD_NAME_INPUT));
         exerciseEntry.setmActivityType((String) entity.getProperty(ExerciseEntry.FIELD_NAME_ACTIVITY));
         exerciseEntry.setmDateTime((String) entity.getProperty(ExerciseEntry.FIELD_NAME_TIME));
