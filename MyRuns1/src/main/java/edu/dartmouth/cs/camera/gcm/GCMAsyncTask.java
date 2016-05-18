@@ -17,7 +17,7 @@ import edu.dartmouth.cs.camera.backend.registration.Registration;
 
 public class GCMAsyncTask extends AsyncTask<String, Void, String> {
 
-    public static final String SERVER_ADDR = "http://fanzy446.appspot.com";
+    public static final String SERVER_ADDR = "https://fanzy446.appspot.com";
     public static final String ID = "id";
     public static final String ENTRIES = "Entries";
     public static final String REGISTER = "register";
